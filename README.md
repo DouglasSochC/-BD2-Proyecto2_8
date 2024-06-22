@@ -1,4 +1,4 @@
-# Manejo de memoria
+# BookStore
 
 _Este es un proyecto universitario del curso de Sistemas de Base de Datos 2, en el cual se busca desarrollar una plataforma eficiente y segura para la venta de libros, utilizando MongoDB como base de datos, que permita a los usuarios comprar libros de manera fácil y a los administradores gestionar el catálogo de libros, autores y pedidos de forma efectiva._
 
@@ -22,6 +22,14 @@ load("<<Ruta>>/script.js")
 ```
 
 ##### Backend
+
+* Para desarrollo
+
+    ```console
+    npm run dev
+    ```
+
+##### Frontend
 
 * Para desarrollo
 
