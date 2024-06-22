@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { Card, Row, Col, Button, Form, InputGroup } from 'react-bootstrap';
 import FeatherIcon from 'feather-icons-react';
+// import Swal from 'sweetalert2';
+// import withReactContent from 'sweetalert2-react-content';
 
 // const MySwal = withReactContent(Swal);
 
 const Login = () => {
 
+  const router = useRouter();
   const handleIniciarSesion = async (e) => {
 
     e.preventDefault();
@@ -17,9 +19,13 @@ const Login = () => {
 
     const data = Object.fromEntries(formData.entries());
 
-    console.log(data);
-    // Cookies.set('auth', JSON.stringify({ username: 'Hola', isAdmin: true }));
-    // router.push('/dashboard_admin');
+    if (data.email === 'admin@email.com') {
+      Cookies.set('auth', JSON.stringify({ username: 'admin', isAdmin: true }));
+    } else if (data.email === 'usuario@email.com') {
+      Cookies.set('auth', JSON.stringify({ username: 'usuario', isAdmin: false }));
+    }
+
+    router.push('/dashboard_admin');
 
     // try {
     //   const res = await axiosInstance.post('/login', formData);
