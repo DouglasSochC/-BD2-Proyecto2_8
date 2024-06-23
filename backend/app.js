@@ -11,7 +11,8 @@ dotenv.config();
 
 // Importar rutas
 const autorRoutes = require('./routes/autor');
-const usuarioRoutes = require('./routes/usuario'); 
+const usuarioRoutes = require('./routes/usuario');
+const libroRoutes = require('./routes/libro');
 
 const app = express();
 
@@ -29,7 +30,7 @@ connectDB();
 
 // Rutas
 app.use('/api/autor', autorRoutes);
-// app.use('/api/libros', require('./routes/libros')); // Descomenta y añade más rutas según sea necesario
+app.use('/api/libro', libroRoutes);
 app.use('/api/usuario', usuarioRoutes);
 
 // Manejo de errores
