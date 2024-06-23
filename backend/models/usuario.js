@@ -35,6 +35,10 @@ const usuarioSchema = new mongoose.Schema({
     enum: ['Administrador', 'Cliente'],
     default: 'Cliente'
   },
+  compras: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Compra'
+  }],
   direccionEnvio: String,
   metodoPago: String
 }, {

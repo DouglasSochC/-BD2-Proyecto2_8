@@ -5,11 +5,13 @@ const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
+const bodyParser = require('body-parser');
 
 dotenv.config();
 
 // Importar rutas
 const autorRoutes = require('./routes/autor');
+const usuarioRoutes = require('./routes/usuario'); 
 
 const app = express();
 
@@ -18,8 +20,8 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Conexión a MongoDB
 const connectDB = require('./config/connection');
@@ -28,6 +30,7 @@ connectDB();
 // Rutas
 app.use('/api/autor', autorRoutes);
 // app.use('/api/libros', require('./routes/libros')); // Descomenta y añade más rutas según sea necesario
+app.use('/api/usuario', usuarioRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {
