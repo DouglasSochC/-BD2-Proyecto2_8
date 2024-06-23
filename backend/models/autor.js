@@ -20,7 +20,10 @@ const autorSchema = new mongoose.Schema({
     ref: 'Libro'
   }]
 }, {
-  timestamps: true
+  timestamps: true,
+  collection: 'autores' // Especificar el nombre de la colección
 });
+
+autorSchema.index({ nombre: 1 });
 
 module.exports = mongoose.model('Autor', autorSchema);

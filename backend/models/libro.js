@@ -68,4 +68,6 @@ const libroSchema = new mongoose.Schema({
   timestamps: true
 });
 
+libroSchema.index({ titulo: 1, autor: 1 });
+
 module.exports = mongoose.model('Libro', libroSchema);

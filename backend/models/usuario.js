@@ -51,4 +51,6 @@ usuarioSchema.methods.compararContrasena = async function(contrasenaCandidata, c
   return await bcrypt.compare(contrasenaCandidata, contrasenaUsuario);
 };
 
+usuarioSchema.index({ correoElectronico: 1 }, { unique: true });
+
 module.exports = mongoose.model('Usuario', usuarioSchema);

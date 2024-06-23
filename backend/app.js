@@ -8,6 +8,9 @@ const compression = require('compression');
 
 dotenv.config();
 
+// Importar rutas
+const autorRoutes = require('./routes/autor');
+
 const app = express();
 
 // Middleware
@@ -18,19 +21,22 @@ app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Conexión a MongoDB (asumiendo que tienes un archivo de configuración)
+// Conexión a MongoDB
 const connectDB = require('./config/connection');
 connectDB();
 
-// Rutas (las importarías aquí)
-// app.use('/api/autores', require('./routes/autores'));
-// app.use('/api/libros', require('./routes/libros'));
-// ...
+// Rutas
+app.use('/api/autor', autorRoutes);
+// app.use('/api/libros', require('./routes/libros')); // Descomenta y añade más rutas según sea necesario
 
 // Manejo de errores
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Algo salió mal!');
+  res.status(500).json({
+    status: 'error',
+    message: 'Algo salió mal!'
+  });
 });
 
+// Exportar la app
 module.exports = app;
