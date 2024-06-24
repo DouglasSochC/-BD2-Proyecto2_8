@@ -38,3 +38,15 @@ exports.protect = async (req, res, next) => {
     });
   }
 };
+
+exports.restringirA = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.usuario.rol)) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'No tienes permiso para realizar esta acción'
+      });
+    }
+    next();
+  };
+};

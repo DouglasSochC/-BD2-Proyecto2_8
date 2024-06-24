@@ -18,6 +18,7 @@ require('./models/autor');
 require('./models/libro');
 require('./models/usuario');
 require('./models/pedido');
+require('./models/compra');
 
 // Mensaje de éxito
 connectDB().then(() => {

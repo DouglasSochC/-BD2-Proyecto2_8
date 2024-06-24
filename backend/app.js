@@ -6,6 +6,10 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
 const bodyParser = require('body-parser');
+// swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
 
 dotenv.config();
 
@@ -13,6 +17,26 @@ dotenv.config();
 const autorRoutes = require('./routes/autor');
 const usuarioRoutes = require('./routes/usuario');
 const libroRoutes = require('./routes/libro');
+const compraRoutes = require('./routes/compra');
+const swaggerSpec /*options */= {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Bookstore API',
+      version: '1.0.0',
+      description: 'Una API para una librería online',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Servidor de desarrollo',
+      },
+    ],
+  },
+  apis: [`${path.join(__dirname, './routes/*.js')}`],
+};
+
+
 
 const app = express();
 
@@ -23,6 +47,7 @@ app.use(helmet());
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerSpec)));
 
 // Conexión a MongoDB
 const connectDB = require('./config/connection');
@@ -32,6 +57,7 @@ connectDB();
 app.use('/api/autor', autorRoutes);
 app.use('/api/libro', libroRoutes);
 app.use('/api/usuario', usuarioRoutes);
+app.use('/api/compra', compraRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {
