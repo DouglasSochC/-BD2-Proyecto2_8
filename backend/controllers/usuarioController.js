@@ -1,5 +1,4 @@
 const Usuario = require('../models/usuario');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 class UsuariosController {
@@ -7,13 +6,8 @@ class UsuariosController {
   async register(req, res) {
     try {
       const nuevoUsuario = await Usuario.create(req.body);
-      const token = jwt.sign({ id: nuevoUsuario._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN
-      });
-
       res.status(201).json({
         status: 'success',
-        token,
         data: {
           usuario: nuevoUsuario
         }
@@ -49,14 +43,11 @@ class UsuariosController {
         });
       }
 
-      // 3) Si todo está bien, enviar el token al cliente
-      const token = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN
-      });
-
+      // 3) Si todo está bien, iniciar sesión
+      // Aquí podrías establecer una sesión de usuario en el servidor o devolver algún tipo de identificación de sesión
       res.status(200).json({
         status: 'success',
-        token
+        message: 'Login exitoso'
       });
     } catch (error) {
       res.status(400).json({
@@ -69,7 +60,7 @@ class UsuariosController {
   // Obtener perfil de usuario
   async getProfile(req, res) {
     try {
-      const usuario = await Usuario.findById(req.usuario.id);
+      const usuario = await Usuario.findById(req.params.id); // Obtener el ID del usuario desde los parámetros de la ruta
       res.status(200).json({
         status: 'success',
         data: {
@@ -106,7 +97,7 @@ class UsuariosController {
 
     // Actualizar el usuario en la base de datos
     try {
-      const usuarioActualizado = await Usuario.findByIdAndUpdate(req.usuario.id, req.body, {
+      const usuarioActualizado = await Usuario.findByIdAndUpdate(req.params.id, req.body, {
         new: true,          // Devolver el documento actualizado
         runValidators: true // Ejecutar las validaciones del esquema
       });
