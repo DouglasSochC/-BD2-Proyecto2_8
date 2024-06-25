@@ -46,7 +46,7 @@ const Sidebar = ({ routes }) => {
             <SimpleBar className={`collapse ${showClass} sidebar d-md-block bg-primary text-white`}>
                 <div className="sidebar-inner px-4 pt-3">
                     <Nav className="flex-column pt-3 pt-md-0">
-                        <NavItem title="Bookstore" link={"/"} />
+                        <NavItem title="Bookstore" link={"/"} image="/logo.png" />
                         {routes.map((item, index) => (
                             <NavItem key={index} title={item.title} link={item.link} icon={item.icon} />
                         ))}
