@@ -32,7 +32,7 @@ export default function NavbarComponent() {
 
   const handleCerrarSesion = () => {
     cerrarSesion();
-    router.push('/login');
+    window.location.reload();
   };
 
   const Notification = (props) => {
@@ -72,24 +72,27 @@ export default function NavbarComponent() {
           <div className="d-flex align-items-center">
           </div>
           <Nav className="align-items-center">
-            <Dropdown as={Nav.Item}>
-              <Dropdown.Toggle as={Nav.Link} className="text-dark icon-notifications me-lg-3">
-                <span className="icon icon-sm">
-                  <FontAwesomeIcon icon={faCartShopping} className="bell-shake" />
-                </span>
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="dashboard-dropdown notifications-dropdown dropdown-menu-lg dropdown-menu-center mt-2 py-0">
-                <ListGroup className="list-group-flush">
-                  <Nav.Link href="#" className="text-center text-primary fw-bold border-bottom border-light py-3">
-                    Carrito
-                  </Nav.Link>
-                  {notifications.map(n => <Notification key={`notification-${n.id}`} {...n} />)}
-                  <Dropdown.Item className="text-center text-primary fw-bold py-3">
-                    Ver detalle
-                  </Dropdown.Item>
-                </ListGroup>
-              </Dropdown.Menu>
-            </Dropdown>
+
+            {usuario && usuario.rol === 'Cliente' && (
+              <Dropdown as={Nav.Item}>
+                <Dropdown.Toggle as={Nav.Link} className="text-dark icon-notifications me-lg-3">
+                  <span className="icon icon-sm">
+                    <FontAwesomeIcon icon={faCartShopping} className="bell-shake" />
+                  </span>
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="dashboard-dropdown notifications-dropdown dropdown-menu-lg dropdown-menu-center mt-2 py-0">
+                  <ListGroup className="list-group-flush">
+                    <Nav.Link href="#" className="text-center text-primary fw-bold border-bottom border-light py-3">
+                      Carrito
+                    </Nav.Link>
+                    {notifications.map(n => <Notification key={`notification-${n.id}`} {...n} />)}
+                    <Dropdown.Item className="text-center text-primary fw-bold py-3">
+                      Ver detalle
+                    </Dropdown.Item>
+                  </ListGroup>
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
 
             <Dropdown as={Nav.Item}>
               <Dropdown.Toggle as={Nav.Link} className="pt-1 px-0">
@@ -101,10 +104,14 @@ export default function NavbarComponent() {
                 </div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="user-dropdown dropdown-menu-right mt-3">
-                <Dropdown.Item className="fw-bold" onClick={() => router.push('/dashboard_usuario/perfil_usuario')} >
-                  <FontAwesomeIcon icon={faUserCircle} className="me-2" /> Mi Perfil
-                </Dropdown.Item>
-                <Dropdown.Divider />
+                {usuario && usuario.rol === 'Cliente' && (
+                  <>
+                    <Dropdown.Item className="fw-bold" onClick={() => router.push('/dashboard_usuario/perfil_usuario')} >
+                      <FontAwesomeIcon icon={faUserCircle} className="me-2" /> Mi Perfil
+                    </Dropdown.Item>
+                    <Dropdown.Divider />
+                  </>
+                )}
                 <Dropdown.Item className="fw-bold" onClick={() => handleCerrarSesion()}>
                   <FontAwesomeIcon icon={faSignOutAlt} className="text-danger me-2" /> Cerrar Sesión
                 </Dropdown.Item>
