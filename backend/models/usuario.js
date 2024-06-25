@@ -49,6 +49,9 @@ const usuarioSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// ... (el resto del código permanece igual)
+// Método para comparar contraseñas
+usuarioSchema.methods.compararContrasena = async function (candidatePassword, userPassword) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 module.exports = mongoose.model('Usuario', usuarioSchema);

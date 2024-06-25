@@ -1,5 +1,6 @@
 const express = require('express');
 const usuarios = require('../controllers/usuarioController');
+const upload = require('../config/S3');
 const router = express.Router();
 
 /**
@@ -155,51 +156,34 @@ router.get('/profile/:id', usuarios.getProfile);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               nombre:
  *                 type: string
- *                 example: "Juan"
  *               correoElectronico:
  *                 type: string
- *                 example: "juan@example.com"
  *               contrasena:
  *                 type: string
- *                 example: "newpassword123"
  *               apellido:
  *                 type: string
- *                 example: "Pérez"
  *               edad:
  *                 type: number
- *                 example: 31
  *               direccionEnvio:
  *                 type: string
- *                 example: "Calle Falsa 123"
  *               metodoPago:
  *                 type: string
- *                 example: "PayPal"
+ *               fotoPerfil:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Perfil del usuario actualizado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 data:
- *                   type: object
- *                   properties:
- *                     usuario:
- *                       $ref: '#/components/schemas/Usuario'
  *       400:
  *         description: Actualización inválida
  */
-router.patch('/update-profile/:id', usuarios.updateProfile);
+router.patch('/update-profile/:id', upload.single('fotoPerfil'), usuarios.updateProfile);
 
 /**
  * @swagger

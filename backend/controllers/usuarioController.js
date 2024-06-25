@@ -1,5 +1,6 @@
 const Usuario = require('../models/usuario');
 const bcrypt = require('bcryptjs');
+const upload = require('../config/S3');
 
 class UsuariosController {
   // Registrar un nuevo usuario
@@ -76,32 +77,41 @@ class UsuariosController {
     }
   }
 
-  // Actualizar perfil de usuario
   async updateProfile(req, res) {
-    const updates = Object.keys(req.body);
-
-    // Solo permitir actualizar los campos especificados
-    const allowedUpdates = ['nombre', 'correoElectronico', 'contrasena', 'apellido', 'edad', 'direccionEnvio', 'metodoPago'];
-    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
-
-    if (!isValidOperation) {
-        return res.status(400).json({
-            status: 'fail',
-            message: 'Actualización inválida'
-        });
-    }
-
-    // Verificar si el campo 'contrasena' está siendo actualizado
-    if (req.body.contrasena) {
-        req.body.contrasena = await bcrypt.hash(req.body.contrasena, 12);
-    }
-
-    // Actualizar el usuario en la base de datos
     try {
-      const usuarioActualizado = await Usuario.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,          // Devolver el documento actualizado
-        runValidators: true // Ejecutar las validaciones del esquema
+      const updates = Object.keys(req.body);
+      const allowedUpdates = ['nombre', 'correoElectronico', 'contrasena', 'apellido', 'edad', 'direccionEnvio', 'metodoPago'];
+      const isValidOperation = updates.every(update => allowedUpdates.includes(update));
+
+      if (!isValidOperation) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Actualización inválida'
+        });
+      }
+
+      const updateData = { ...req.body };
+
+      if (updateData.contrasena) {
+        updateData.contrasena = await bcrypt.hash(updateData.contrasena, 12);
+      }
+
+      if (req.file) {
+        console.log('Archivo subido:', req.file);
+        updateData.fotoPerfil = req.file.location; // URL de S3
+      }
+
+      const usuarioActualizado = await Usuario.findByIdAndUpdate(req.params.id, updateData, {
+        new: true,
+        runValidators: true
       });
+
+      if (!usuarioActualizado) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'Usuario no encontrado'
+        });
+      }
 
       res.status(200).json({
         status: 'success',
@@ -110,6 +120,7 @@ class UsuariosController {
         }
       });
     } catch (error) {
+      console.error('Error al actualizar el perfil:', error);
       res.status(400).json({
         status: 'fail',
         message: error.message
