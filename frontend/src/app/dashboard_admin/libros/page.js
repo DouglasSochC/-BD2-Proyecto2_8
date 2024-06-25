@@ -1,11 +1,11 @@
 import React from 'react';
 
-function Autor() {
+function Libros() {
     return (
         <div>
-            Autor
+            Libros
         </div>
     );
 }
 
-export default Autor;
+export default Libros;

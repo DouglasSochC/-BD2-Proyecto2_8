@@ -1,11 +1,11 @@
 import React from 'react';
 
-function Autor() {
+function Historial() {
     return (
         <div>
-            Autor
+            Historial
         </div>
     );
 }
 
-export default Autor;
+export default Historial;

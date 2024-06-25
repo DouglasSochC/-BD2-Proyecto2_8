@@ -1,11 +1,11 @@
 import React from 'react';
 
-function Autor() {
+function Reportes() {
     return (
         <div>
-            Autor
+            Reportes
         </div>
     );
 }
 
-export default Autor;
+export default Reportes;

@@ -6,10 +6,9 @@ import Cookies from 'js-cookie';
 import { Row, Col, Button, Form, InputGroup, Container } from 'react-bootstrap';
 import { faEnvelope, faUnlockAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import Swal from 'sweetalert2';
-// import withReactContent from 'sweetalert2-react-content';
+import { handleAxiosError, handleSwal, handleAxios } from '@/helpers/axiosConfig';
 
-// const MySwal = withReactContent(Swal);
+const MySwal = handleSwal();
 
 const Login = () => {
 
@@ -19,33 +18,32 @@ const Login = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    const data = Object.fromEntries(formData.entries());
-    console.log(data);
+    // const data = Object.fromEntries(formData.entries());
+    // console.log(data);
 
-    if (data.email === 'admin@email.com') {
-      Cookies.set('auth', JSON.stringify({ username: 'admin', isAdmin: true }), { expires: 1/24 });
-    } else if (data.email === 'usuario@email.com') {
-      Cookies.set('auth', JSON.stringify({ username: 'usuario', isAdmin: false }), { expires: 1/24 });
-    }
-
-    router.push('/dashboard_admin');
-
-    // try {
-    //   const res = await axiosInstance.post('/login', formData);
-    //   MySwal.fire({
-    //     title: 'Hecho',
-    //     text: res.data.message,
-    //     icon: 'success'
-    //   }).then(() => {
-    //     if (res.status === 200) {
-    //       login(res.data.user);
-    //       router.push("/");
-    //     }
-    //   });
-
-    // } catch (error) {
-    //   handleAxiosError(error);
+    // if (data.email === 'admin@email.com') {
+    //   Cookies.set('auth', JSON.stringify({ username: 'admin', isAdmin: true }), { expires: 1/24 });
+    // } else if (data.email === 'usuario@email.com') {
+    //   Cookies.set('auth', JSON.stringify({ username: 'usuario', isAdmin: false }), { expires: 1/24 });
     // }
+
+    // router.push('/dashboard_admin');
+
+    try {
+      const res = await handleAxios().post('/usuario/login', formData);
+      MySwal.fire({
+        title: 'Hecho',
+        text: res.data.message,
+        icon: 'success'
+      }).then(() => {
+        console.log(res);
+        // if (res.status === 200) {
+        //   router.push("/");
+        // }
+      });
+    } catch (error) {
+      handleAxiosError(error);
+    }
   };
 
   return (
@@ -71,7 +69,7 @@ const Login = () => {
                       <InputGroup.Text>
                         <FontAwesomeIcon icon={faEnvelope} />
                       </InputGroup.Text>
-                      <Form.Control id="email" name="email" autoFocus required type="email" placeholder="example@company.com" />
+                      <Form.Control id="correoElectronico" name="correoElectronico" autoFocus required type="email" placeholder="example@company.com" />
                     </InputGroup>
                   </Form.Group>
                   <Form.Group>
@@ -81,7 +79,7 @@ const Login = () => {
                         <InputGroup.Text>
                           <FontAwesomeIcon icon={faUnlockAlt} />
                         </InputGroup.Text>
-                        <Form.Control id="password" name="password" required type="password" placeholder="Contraseña" />
+                        <Form.Control id="contrasena" name="contrasena" required type="password" placeholder="Contraseña" />
                       </InputGroup>
                     </Form.Group>
                   </Form.Group>
