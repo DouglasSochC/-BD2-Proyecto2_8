@@ -6,7 +6,7 @@ const router = express.Router();
 // ruta para crear un autor
 /**
  * @swagger
- * /api/autores:
+ * /api/autor:
  *   post:
  *     summary: Crea un nuevo autor
  *     tags: [Autores]
@@ -38,7 +38,7 @@ router.post('/', autores.create);
 
 /**
  * @swagger
- * /api/autores:
+ * /api/autor:
  *   get:
  *     summary: Obtiene todos los autores
  *     tags: [Autores]
@@ -53,7 +53,7 @@ router.get('/', autores.findAll);
 //Ruta para obtener un solo autor
 /**
  * @swagger
- * /api/autores/{nombre}:
+ * /api/autor/{nombre}:
  *   get:
  *     summary: Obtiene un autor por nombre
  *     tags: [Autores]
@@ -73,6 +73,30 @@ router.get('/', autores.findAll);
  *         description: No se encontró ningún autor con ese nombre exacto
  */
 router.get('/:nombre', autores.findOne);
+
+// Ruta para eliminar un autor
+/**
+ * @swagger
+ * /api/autor/{id}:
+ *   delete:
+ *     summary: Elimina un autor por ID
+ *     tags: [Autores]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del autor
+ *     responses:
+ *       204:
+ *         description: Autor eliminado exitosamente
+ *       400:
+ *         description: Error al eliminar el autor
+ *       404:
+ *         description: No se encontró el autor con ese ID
+ */
+router.delete('/:id', autores.delete);
 
 
 module.exports = router;

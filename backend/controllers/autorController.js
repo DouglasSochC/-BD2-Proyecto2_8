@@ -69,6 +69,30 @@ class AutoresController {
     }
   }
 
+  // Eliminar un autor
+  async delete(req, res) {
+    try {
+      const { id } = req.params;
+      const autorEliminado = await Autor.findByIdAndDelete(id);
+      if (!autorEliminado) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'No se encontró el autor con ese ID'
+        });
+      }
+      res.status(204).json({
+        status: 'success',
+        data: null,
+        message: 'Autor eliminado exitosamente'
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
+      });
+    }
+  }
+
 }
 
 module.exports = new AutoresController();
