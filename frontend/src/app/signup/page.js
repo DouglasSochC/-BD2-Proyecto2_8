@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link'
-import Cookies from 'js-cookie';
+import { crearSession } from '@/helpers/session';
 import { Row, Col, Button, Form, InputGroup, Container } from 'react-bootstrap';
 import { faEnvelope, faUser, faMapLocation, faHashtag, faMoneyBill, faUnlockAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,17 +18,6 @@ const SignUp = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    // const data = Object.fromEntries(formData.entries());
-    // console.log(data);
-
-    // if (data.email === 'admin@email.com') {
-    //   Cookies.set('auth', JSON.stringify({ username: 'admin', isAdmin: true }), { expires: 1/24 });
-    // } else if (data.email === 'usuario@email.com') {
-    //   Cookies.set('auth', JSON.stringify({ username: 'usuario', isAdmin: false }), { expires: 1/24 });
-    // }
-
-    // router.push('/dashboard_admin');
-
     try {
       const res = await handleAxios().post('/usuario/register', formData);
       MySwal.fire({
@@ -36,10 +25,11 @@ const SignUp = () => {
         text: "Usuario registrado exitosamente",
         icon: 'success'
       }).then(() => {
-        console.log(res);
-        // if (res.status === 200) {
-        //   router.push("/");
-        // }
+        if (res.status === 201) {
+          console.log(res);
+          crearSession(res.data.data.usuario);
+          router.push("/");
+        }
       });
     } catch (error) {
       handleAxiosError(error);

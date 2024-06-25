@@ -9,16 +9,13 @@ export function middleware(request) {
   } else if (cookies && request.nextUrl.pathname === '/login') {
     return NextResponse.redirect(new URL('/', request.url));
   } else if (cookies) {
-
-    const { isAdmin } = JSON.parse(cookies.value);
-
+    const { rol } = JSON.parse(cookies.value);
     // Si el usuario es admin y quiere acceder a otra ruta que no sea dashboard_admin o subrutas de este, se redirige a dashboard_admin
-    if (isAdmin && !request.nextUrl.pathname.startsWith('/dashboard_admin')) {
+    if (rol == "Administrador" && !request.nextUrl.pathname.startsWith('/dashboard_admin')) {
       return NextResponse.redirect(new URL('/dashboard_admin', request.url));
-    } else if (!isAdmin && !request.nextUrl.pathname.startsWith('/dashboard_usuario')) {
+    } else if (rol == "Cliente" && !request.nextUrl.pathname.startsWith('/dashboard_usuario')) {
       return NextResponse.redirect(new URL('/dashboard_usuario', request.url));
     }
-
   }
 }
 

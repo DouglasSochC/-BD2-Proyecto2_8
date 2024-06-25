@@ -4,11 +4,12 @@ import { faCartShopping, faSignOutAlt } from "@fortawesome/free-solid-svg-icons"
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { Row, Col, Nav, Image, Navbar, Dropdown, Container, ListGroup } from 'react-bootstrap';
 import { useRouter } from 'next/navigation';
+import { cerrarSesion, obtenerDatosUsuario } from "@/helpers/session";
 
 export default function NavbarComponent() {
 
   const router = useRouter();
-
+  const usuario = obtenerDatosUsuario();
   const [notifications, setNotifications] = useState([
     {
       "id": 1,
@@ -28,6 +29,11 @@ export default function NavbarComponent() {
       "link": "#",
       "message": `You've been assigned a task for "Awesome new project".`
     }]);
+
+  const handleCerrarSesion = () => {
+    cerrarSesion();
+    router.push('/login');
+  };
 
   const Notification = (props) => {
     const { link, sender, image, time, message, read = false } = props;
@@ -86,16 +92,16 @@ export default function NavbarComponent() {
                 <div className="media d-flex align-items-center">
                   <Image src="/user_icon.png" className="user-avatar md-avatar rounded-circle" />
                   <div className="media-body ms-2 text-dark align-items-center d-none d-lg-block">
-                    <span className="mb-0 font-small fw-bold">Bonnie Green</span>
+                    <span className="mb-0 font-small fw-bold">{usuario.nombre}</span>
                   </div>
                 </div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="user-dropdown dropdown-menu-right mt-3">
-                <Dropdown.Item className="fw-bold" onClick={() => router.push('perfil_usuario')} >
+                <Dropdown.Item className="fw-bold" onClick={() => router.push('/dashboard_usuario/perfil_usuario')} >
                   <FontAwesomeIcon icon={faUserCircle} className="me-2" /> Mi Perfil
                 </Dropdown.Item>
                 <Dropdown.Divider />
-                <Dropdown.Item className="fw-bold">
+                <Dropdown.Item className="fw-bold" onClick={() => handleCerrarSesion()}>
                   <FontAwesomeIcon icon={faSignOutAlt} className="text-danger me-2" /> Cerrar Sesión
                 </Dropdown.Item>
               </Dropdown.Menu>
