@@ -6,6 +6,10 @@ import { obtenerDatosUsuario } from "@/helpers/session";
 
 function PerfilUsuario() {
 
+  const handleSubmit = async (e) => {
+    
+  }
+
   const usuario = obtenerDatosUsuario();
 
   return (

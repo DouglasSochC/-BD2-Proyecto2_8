@@ -21,7 +21,7 @@ class AutoresController {
 
   async findAll(req, res) {
     try {
-      const autores = await Autor.find();
+      const autores = await Autor.find().populate('libros');
       res.status(200).json({
         status: 'success',
         results: autores.length,
