@@ -34,7 +34,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/usuarios/register:
+ * /api/usuario/register:
  *   post:
  *     summary: Registrar un nuevo usuario
  *     tags: [Usuarios]
@@ -67,7 +67,7 @@ router.post('/register', usuarios.register);
 
 /**
  * @swagger
- * /api/usuarios/login:
+ * /api/usuario/login:
  *   post:
  *     summary: Iniciar sesión
  *     tags: [Usuarios]
@@ -107,7 +107,7 @@ router.post('/login', usuarios.login);
 
 /**
  * @swagger
- * /api/usuarios/profile/{id}:
+ * /api/usuario/profile/{id}:
  *   get:
  *     summary: Obtener perfil del usuario
  *     tags: [Usuarios]
@@ -141,7 +141,7 @@ router.get('/profile/:id', usuarios.getProfile);
 
 /**
  * @swagger
- * /api/usuarios/update-profile/{id}:
+ * /api/usuario/update-profile/{id}:
  *   patch:
  *     summary: Actualizar perfil del usuario
  *     tags: [Usuarios]
@@ -200,5 +200,37 @@ router.get('/profile/:id', usuarios.getProfile);
  *         description: Actualización inválida
  */
 router.patch('/update-profile/:id', usuarios.updateProfile);
+
+/**
+ * @swagger
+ * /api/usuario:
+ *   get:
+ *     summary: Obtener lista de usuarios
+ *     tags: [Usuarios]
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 results:
+ *                   type: integer
+ *                   example: 1
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     usuarios:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Usuario'
+ *       400:
+ *         description: Error al obtener la lista de usuarios
+ */
+router.get('/', usuarios.findAll);
 
 module.exports = router;

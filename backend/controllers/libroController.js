@@ -15,6 +15,10 @@ class LibrosController {
       }
 
       const nuevoLibro = await Libro.create(req.body);
+
+      // Agregar el libro al autor
+      autorExiste.libros.push(nuevoLibro._id);
+      await autorExiste.save();
       res.status(201).json({
         status: "success",
         data: {
@@ -34,7 +38,6 @@ class LibrosController {
       const { titulo, autor, genero, precioMin, precioMax, puntuacionMedia } =
         req.query;
       let filtro = {};
-
       if (titulo) filtro.titulo = { $regex: titulo, $options: "i" };
       if (autor) {
         const autorEncontrado = await Autor.findOne({
@@ -50,7 +53,7 @@ class LibrosController {
       }
       if (puntuacionMedia)
         filtro.puntuacionMedia = { $gte: parseFloat(puntuacionMedia) };
-
+      console.log("filtro:", filtro)
       const libros = await Libro.find(filtro).populate("autor", "nombre");
       res.json(libros);
     } catch (error) {
@@ -96,22 +99,22 @@ class LibrosController {
     try {
       const { id } = req.params;
       const { usuario, puntuacion, comentario } = req.body;
-  
+
       const libro = await Libro.findById(id);
       console.log("libro:", libro)
       if (!libro) {
         return res.status(404).json({ message: "Libro no encontrado" });
       }
-  
+
       // Agregar la nueva reseña
       libro.resenas.push({ usuario, puntuacion, comentario });
-  
+
       // Recalcular la puntuación media
       const totalPuntuaciones = libro.resenas.reduce((sum, resena) => sum + resena.puntuacion, 0);
       libro.puntuacionMedia = totalPuntuaciones / libro.resenas.length;
-  
+
       await libro.save();
-  
+
       res.status(201).json({
         status: "success",
         data: {

@@ -116,6 +116,25 @@ class UsuariosController {
       });
     }
   }
+
+  // Obtener lista de usuarios
+  async findAll(req, res) {
+    try {
+      const usuarios = await Usuario.find();
+      res.status(200).json({
+        status: 'success',
+        results: usuarios.length,
+        data: {
+          usuarios
+        }
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
+      });
+    }
+  }
 }
 
 module.exports = new UsuariosController();

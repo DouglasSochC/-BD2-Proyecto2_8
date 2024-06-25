@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 const Usuario = require('./models/usuario'); // Importa el modelo de Usuario
+const dotenv = require('dotenv');
+
+// Cargar variables de entorno
+dotenv.config();
 
 // Conectar a la base de datos
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/BookStore');
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://carlos5231fac:LwlgLXjsJyTq93LD@cluster0.hzv36uj.mongodb.net/BookStore?retryWrites=true&w=majority&appName=Cluster0");
     console.log('MongoDB connected successfully');
 
 
