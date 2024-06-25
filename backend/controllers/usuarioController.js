@@ -47,7 +47,8 @@ class UsuariosController {
       // Aquí podrías establecer una sesión de usuario en el servidor o devolver algún tipo de identificación de sesión
       res.status(200).json({
         status: 'success',
-        message: 'Login exitoso'
+        message: 'Login exitoso',
+        usuario: usuario
       });
     } catch (error) {
       res.status(400).json({
