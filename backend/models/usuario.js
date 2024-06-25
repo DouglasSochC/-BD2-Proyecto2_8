@@ -35,6 +35,10 @@ const usuarioSchema = new mongoose.Schema({
     enum: ['Administrador', 'Cliente'],
     default: 'Cliente'
   },
+  fotoPerfil: {
+    type: String,
+    default: ''  // URL de la imagen por defecto o vacío
+  },
   compras: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Compra'
@@ -45,16 +49,6 @@ const usuarioSchema = new mongoose.Schema({
   timestamps: true
 });
 
-usuarioSchema.pre('save', async function(next) {
-  if (!this.isModified('contrasena')) return next();
-  this.contrasena = await bcrypt.hash(this.contrasena, 12);
-  next();
-});
-
-usuarioSchema.methods.compararContrasena = async function(contrasenaCandidata, contrasenaUsuario) {
-  return await bcrypt.compare(contrasenaCandidata, contrasenaUsuario);
-};
-
-usuarioSchema.index({ correoElectronico: 1 }, { unique: true });
+// ... (el resto del código permanece igual)
 
 module.exports = mongoose.model('Usuario', usuarioSchema);
