@@ -1,7 +1,7 @@
 'use client';
 
 import { Row, Col, Button, Form, Card, Image } from 'react-bootstrap';
-import { handleAxiosError, handleSwal, handleAxiosMsg, handleAxios } from '@/helpers/axiosConfig';
+import { handleAxiosError, handleSwal, handleAxiosMsg, handleAxiosMultipart } from '@/helpers/axiosConfig';
 import { obtenerDatosUsuario } from "@/helpers/session";
 import { crearSession } from '@/helpers/session';
 
@@ -34,7 +34,7 @@ function PerfilUsuario() {
       formData.delete('confContrasena');
 
       // Se envia la peticion al servidor y se obtiene el mensaje
-      const res = await handleAxios().patch('/usuario/update-profile/' + usuario._id, formData);
+      const res = await handleAxiosMultipart().patch('/usuario/update-profile/' + usuario._id, formData);
       handleAxiosMsg("Usuario actualizado correctamente").then(() => {
         crearSession(res.data.data.usuario);
         window.location.reload();
@@ -45,13 +45,17 @@ function PerfilUsuario() {
     }
   }
 
+  const handleImageError = (event) => {
+    event.target.src = 'https://via.placeholder.com/150';
+  };
+
   return (
     <Card border="light" className="bg-white shadow-sm mb-4">
       <Card.Body>
         <h5 className="mb-4">Perfil de Usuario</h5>
         <Form onSubmit={handleGuardarCambios}>
           <Row className="justify-content-center">
-            <Image src={usuario && usuario.urlImagen ? usuario.urlImagen : '/user_icon.png'} rounded style={{ width: '200px', height: 'auto', aspectRatio: '1/1' }} />
+            <Image src={usuario.fotoPerfil} rounded onError={handleImageError} style={{ width: '200px', height: 'auto', aspectRatio: '1/1' }} />
           </Row>
           <Row>
             <Col md={6} className="mb-3">
@@ -93,6 +97,16 @@ function PerfilUsuario() {
                 <Form.Label>Metodo de Pago</Form.Label>
                 <Form.Control required id="metodoPago" name="metodoPago" type="text" placeholder="Efectivo" autoComplete='off' defaultValue={usuario ? usuario.metodoPago : ''} />
               </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={12} className="mb-3">
+              <Form.Label>Cambiar foto</Form.Label>
+              <Form.Control
+                type="file"
+                id="fotoPerfil"
+                name="fotoPerfil"
+              />
             </Col>
           </Row>
           <h5 className="my-4">Cambio de contraseña</h5>
