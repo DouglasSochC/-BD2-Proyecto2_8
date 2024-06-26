@@ -76,26 +76,40 @@ router.get('/', autores.findAll);
 //Ruta para obtener un solo autor
 /**
  * @swagger
- * /api/autor/{nombre}:
+ * /api/autor/{id}:
  *   get:
- *     summary: Obtiene un autor por nombre
+ *     summary: Obtiene un autor por ID
  *     tags: [Autores]
  *     parameters:
  *       - in: path
- *         name: nombre
+ *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: Nombre del autor
+ *         description: ID del autor
  *     responses:
  *       200:
- *         description: Información del autor
+ *         description: Información del autor obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     autor:
+ *                       $ref: '#/components/schemas/Autor'
  *       400:
- *         description: Por favor, proporciona un nombre de autor
+ *         description: Error en la solicitud
  *       404:
- *         description: No se encontró ningún autor con ese nombre exacto
+ *         description: Autor no encontrado
  */
-router.get('/:nombre', autores.findOne);
+router.get('/:id', autores.findOne);
+
 
 // Ruta para eliminar un autor
 /**

@@ -37,47 +37,49 @@ class AutoresController {
   }
 
   async findAll(req, res) {
+    const { nombre } = req.params;
+    if (!nombre) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Por favor, proporciona un nombre de autor'
+      });
+    }
+
     try {
-      let query = {};
-
-      // Filtrar por nombre si se proporciona
-      if (req.query.nombre) {
-        query.nombre = { $regex: req.query.nombre, $options: 'i' };
-      }
-
-      const autores = await Autor.find(query).populate('libros');
+      // Usamos una expresión regular para buscar nombres similares
+      const regex = new RegExp(nombre, 'i'); // 'i' hace que la búsqueda sea insensible a mayúsculas/minúsculas
+      const autores = await Autor.find({ nombre: regex }).populate('libros');
 
       res.status(200).json({
         status: 'success',
-        results: autores.length,
         data: {
           autores
         }
       });
     } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
+      res.status(500).json({
+        status: 'error',
+        message: 'Error al buscar autores',
+        error: error.message
       });
     }
   }
 
   async findOne(req, res) {
     try {
-
-      const { nombre } = req.params;
-      if (!nombre) {
+      const { id } = req.params;
+      if (!id) {
         return res.status(400).json({
           status: 'fail',
-          message: 'Por favor, proporciona un nombre de autor'
+          message: 'Por favor, proporciona un ID de autor'
         });
       }
 
-      const autor = await Autor.findOne({ nombre: nombre }).populate('libros');
+      const autor = await Autor.findById(id).populate('libros');
       if (!autor) {
         return res.status(404).json({
           status: 'fail',
-          message: 'No se encontró ningún autor con ese nombre exacto'
+          message: 'No se encontró ningún autor con ese ID'
         });
       }
       res.status(200).json({
