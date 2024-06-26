@@ -36,34 +36,32 @@ class AutoresController {
     }
   }
 
-  async findAll(req, res) {
-    const { nombre } = req.params;
-    if (!nombre) {ki
-      return res.status(400).json({
-        status: 'fail',
-        message: '' //Por favor, proporciona un nombre de autor
-      });
-    }
+async findAll(req, res) {
+  const { nombre } = req.query;
 
-    try {
+  try {
+    let query = {};
+    if (nombre) {
       // Usamos una expresión regular para buscar nombres similares
-      const regex = new RegExp(nombre, 'i'); // 'i' hace que la búsqueda sea insensible a mayúsculas/minúsculas
-      const autores = await Autor.find({ nombre: regex }).populate('libros');
-
-      res.status(200).json({
-        status: 'success',
-        data: {
-          autores
-        }
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: 'error',
-        message: 'Error al buscar autores',
-        error: error.message
-      });
+      query.nombre = new RegExp(nombre, 'i'); // 'i' hace que la búsqueda sea insensible a mayúsculas/minúsculas
     }
+
+    const autores = await Autor.find(query).populate('libros');
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        autores
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Error al buscar autores',
+      error: error.message
+    });
   }
+}
 
   async findOne(req, res) {
     try {

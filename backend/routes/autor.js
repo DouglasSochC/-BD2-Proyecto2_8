@@ -38,16 +38,15 @@ router.post('/', upload.single('foto'), autores.create);
 
 /**
  * @swagger
- * /api/autor/{nombre}:
+ * /api/autor:
  *   get:
- *     summary: Obtiene todos los autores que coinciden con el nombre proporcionado
+ *     summary: Obtiene todos los autores, con filtrado opcional por nombre
  *     tags: [Autores]
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: nombre
  *         schema:
  *           type: string
- *         required: true
  *         description: Nombre del autor para buscar (búsqueda parcial, no sensible a mayúsculas/minúsculas)
  *     responses:
  *       200:
@@ -72,7 +71,9 @@ router.post('/', upload.single('foto'), autores.create);
  *       404:
  *         description: No se encontró ningún autor con ese nombre exacto
  */
-router.get('/:nombre', autores.findAll);
+router.get('/', autores.findAll);
+
+
 
 //Ruta para obtener un solo autor
 /**
