@@ -3,7 +3,7 @@
 // React
 import { useState, useEffect } from "react";
 // Axios
-import { handleAxios, handleAxiosError, handleAxiosMsg } from '@/helpers/axiosConfig';
+import { handleAxios, handleAxiosMultipart, handleAxiosError, handleAxiosMsg } from '@/helpers/axiosConfig';
 // Bootstrap
 import { Col, Row, Form, Modal, Table, Button } from 'react-bootstrap';
 // Font Awesome
@@ -44,11 +44,8 @@ function Autor() {
 
       // Se obtienen los valores del formulario
       const formData = new FormData(e.currentTarget);
-
-      formData.set('foto', 'modificar_ruta');
-
       // Se envia la peticion al servidor y se obtiene el mensaje
-      const res = await handleAxios().post('/autor', formData);
+      const res = await handleAxiosMultipart().post('/autor', formData);
       handleAxiosMsg("Autor creado correctamente").then(() => {
         // Cierra el modal despues de guardar
         handleCloseInsercion();
@@ -145,7 +142,6 @@ function Autor() {
                 type="file"
                 id="foto"
                 name="foto"
-              // onChange={handleImagenChange}
               />
             </Form.Group>
           </Modal.Body>
