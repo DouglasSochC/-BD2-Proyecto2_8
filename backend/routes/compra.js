@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const compraController = require('../controllers/compraController');
-const authMiddleware = require('../middleware/auth');
 
 // Crear una nueva compra
 
@@ -11,8 +10,6 @@ const authMiddleware = require('../middleware/auth');
  *   post:
  *     summary: Crear una nueva compra
  *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -48,7 +45,7 @@ const authMiddleware = require('../middleware/auth');
  *       401:
  *         description: No autorizado
  */
-router.post('/', authMiddleware.protect, compraController.crearCompra);
+router.post('/', compraController.crearCompra);
 
 // Obtener compras de un usuario específico
 
@@ -58,8 +55,6 @@ router.post('/', authMiddleware.protect, compraController.crearCompra);
  *   get:
  *     summary: Obtener compras de un usuario específico
  *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: usuarioId
@@ -77,7 +72,7 @@ router.post('/', authMiddleware.protect, compraController.crearCompra);
  *       404:
  *         description: Usuario no encontrado
  */
-router.get('/usuario/:usuarioId', authMiddleware.protect, compraController.obtenerComprasUsuario);
+router.get('/usuario/:usuarioId', compraController.obtenerComprasUsuario);
 
 // Actualizar el estado de una compra (solo para administradores)
 
@@ -87,8 +82,6 @@ router.get('/usuario/:usuarioId', authMiddleware.protect, compraController.obten
  *   patch:
  *     summary: Actualizar el estado de una compra (solo para administradores)
  *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: compraId
@@ -116,7 +109,7 @@ router.get('/usuario/:usuarioId', authMiddleware.protect, compraController.obten
  *       404:
  *         description: Compra no encontrada
  */
-router.patch('/:compraId', authMiddleware.protect, authMiddleware.restringirA('Administrador'), compraController.actualizarEstadoCompra);
+router.patch('/:compraId', compraController.actualizarEstadoCompra);
 
 // Obtener todas las compras (solo para administradores)
 
@@ -126,8 +119,6 @@ router.patch('/:compraId', authMiddleware.protect, authMiddleware.restringirA('A
  *   get:
  *     summary: Obtener todas las compras (solo para administradores)
  *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de todas las compras obtenida exitosamente
@@ -136,6 +127,6 @@ router.patch('/:compraId', authMiddleware.protect, authMiddleware.restringirA('A
  *       401:
  *         description: No autorizado
  */
-router.get('/', authMiddleware.protect, authMiddleware.restringirA('Administrador'), compraController.obtenerTodasLasCompras);
+router.get('/', compraController.obtenerTodasLasCompras);
 
 module.exports = router;

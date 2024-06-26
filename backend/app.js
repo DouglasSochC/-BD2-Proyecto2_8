@@ -18,6 +18,8 @@ const autorRoutes = require('./routes/autor');
 const usuarioRoutes = require('./routes/usuario');
 const libroRoutes = require('./routes/libro');
 const compraRoutes = require('./routes/compra');
+const reporteRoutes = require('./routes/reporte');
+
 const swaggerSpec /*options */= {
   definition: {
     openapi: '3.0.0',
@@ -58,6 +60,7 @@ app.use('/api/autor', autorRoutes);
 app.use('/api/libro', libroRoutes);
 app.use('/api/usuario', usuarioRoutes);
 app.use('/api/compra', compraRoutes);
+app.use('/api/reporte', reporteRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {

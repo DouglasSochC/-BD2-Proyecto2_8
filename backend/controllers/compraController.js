@@ -17,6 +17,7 @@ class CompraController {
       let total = 0;
       for (let item of libros) {
         const libro = await Libro.findById(item.libro);
+        console.log("libro: ", libro);
         if (!libro) {
           return res.status(404).json({ mensaje: `Libro con ID ${item.libro} no encontrado` });
         }
@@ -24,7 +25,7 @@ class CompraController {
           return res.status(400).json({ mensaje: `Stock insuficiente para ${libro.titulo}` });
         }
         total += libro.precio * item.cantidad;
-        
+
         // Actualizar el stock del libro
         libro.cantidadDisponible -= item.cantidad;
         await libro.save();
@@ -79,7 +80,7 @@ class CompraController {
     try {
       const { estado } = req.body;
       const compra = await Compra.findByIdAndUpdate(
-        req.params.compraId, 
+        req.params.compraId,
         { estado },
         { new: true, runValidators: true }
       );

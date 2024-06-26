@@ -16,10 +16,6 @@ const compraSchema = new mongoose.Schema({
       type: Number,
       required: true,
       min: 1
-    },
-    precio: {
-      type: Number,
-      required: true
     }
   }],
   total: {
