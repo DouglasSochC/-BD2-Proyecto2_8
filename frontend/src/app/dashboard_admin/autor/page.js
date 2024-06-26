@@ -5,10 +5,12 @@ import { useState, useEffect } from "react";
 // Axios
 import { handleAxios, handleAxiosMultipart, handleAxiosError, handleAxiosMsg } from '@/helpers/axiosConfig';
 // Bootstrap
-import { Col, Row, Form, Modal, Table, Button } from 'react-bootstrap';
+import { Col, Row, Form, Modal, Button } from 'react-bootstrap';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
+// DataTable
+import DataTable from 'react-data-table-component';
 
 function Autor() {
 
@@ -63,7 +65,7 @@ function Autor() {
   const handleEliminarAutor = async (id) => {
     try {
       const res = await handleAxios().delete(`/autor/${id}`);
-      handleAxiosMsg(res.data.message).then(() => {
+      handleAxiosMsg("Autor eliminado correctamente").then(() => {
         obtenerAutores();
       });
     } catch (error) {
@@ -75,35 +77,42 @@ function Autor() {
     obtenerAutores();
   }, []);
 
+
+  const columnas = [
+    {
+      name: 'Nombre',
+      selector: row => row.nombre,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'Biografia',
+      selector: row => row.biografia,
+      wrap: true,
+    },
+    {
+      name: 'Acciones',
+      cell: row => (
+        <>
+          <Button variant="danger" onClick={() => handleEliminarAutor(row._id)}>
+            <FontAwesomeIcon icon={faTrashCan} />
+          </Button>
+        </>
+      )
+    },
+  ];
+
   return (
     <>
       <Row className="gx-3 gy-4">
         <Button onClick={handleShowInsercion} ariant="primary" className="w-100" > Agregar nuevo autor </Button>
         <Col xs={12} xl={12} className="order-1 order-xl-0">
-          <Table responsive>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Nombre</th>
-                <th>Biografia</th>
-                <th>Opciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {autores.map((autor, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{autor.nombre}</td>
-                  <td>{autor.biografia}</td>
-                  <td>
-                    <Button variant="danger" onClick={() => handleEliminarAutor(autor._id)}>
-                      <FontAwesomeIcon icon={faTrashCan} />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <DataTable
+            title="Autores"
+            columns={columnas}
+            data={autores}
+            pagination
+          />
         </Col>
       </Row>
 
