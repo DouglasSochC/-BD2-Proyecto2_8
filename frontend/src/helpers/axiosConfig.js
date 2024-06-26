@@ -44,3 +44,10 @@ export const handleAxios = () => {
     axios.defaults.headers.common['Content-Type'] = 'application/json';
     return axios;
 };
+
+export const handleAxiosMultipart = () => {
+    axios.defaults.baseURL = process.env.NEXT_PUBLIC_API;
+    axios.defaults.headers.common['Accept'] = 'application/json';
+    axios.defaults.headers.common['Content-Type'] = 'multipart/form-data';
+    return axios;
+}
