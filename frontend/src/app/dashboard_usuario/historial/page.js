@@ -9,7 +9,28 @@ import CompraDialog from './compraDialog';
 // Bootstrap
 import { Col, Row, Form, Modal, Table, Button } from 'react-bootstrap';
 
-
+/*const compras1 = [
+    {
+      usuario: 1,
+      libros: [
+        {
+          libro: 20,
+          cantidad: 2,
+          precio: 15.99
+        },
+        {
+          libro: 30,
+          cantidad: 1,
+          precio: 12.99
+        }
+      ],
+      total: 39.97,
+      estado: 'En proceso',
+      direccionEnvio: '123 Main St',
+      metodoPago: 'Tarjeta de crédito',
+      fechaCompra: '2020/05/16'
+    },
+  ]*/
 
 const Historial = () => {
     
@@ -17,9 +38,9 @@ const Historial = () => {
   const [compras, setCompras] = useState([]);
   const obtenerCompras = async () => {
     try {
-      const response = await handleAxios().get('/compra');
+      const response = await handleAxios().get('/compra/usuario/1'); //TODO: cambiar endpoint por el usuario
       const data = response.data.data;
-  console.log("comrpas", compras, data);
+  
 
       setCompras(data);
     } catch (error) {
@@ -52,6 +73,7 @@ const Historial = () => {
 
     useEffect(() => {
         obtenerCompras();
+        //setCompras(compras1)
       }, []);
 
     return (
