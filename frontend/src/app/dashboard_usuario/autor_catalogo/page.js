@@ -24,7 +24,7 @@ const AutorCatalogo = () => {
 
     const obtenerAutores = async () => {
       try {
-        const response = await handleAxios().get('/autor/' + search);
+        const response = await handleAxios().get('/autor', { params: { nombre: search } });
         const autores = response.data.data.autores;
         const offset = currentPage * itemsPerPage;
         setCurrentItems(autores.slice(offset, offset + itemsPerPage));
