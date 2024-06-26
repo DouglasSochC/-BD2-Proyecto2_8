@@ -38,10 +38,10 @@ class AutoresController {
 
   async findAll(req, res) {
     const { nombre } = req.params;
-    if (!nombre) {
+    if (!nombre) {ki
       return res.status(400).json({
         status: 'fail',
-        message: 'Por favor, proporciona un nombre de autor'
+        message: '' //Por favor, proporciona un nombre de autor
       });
     }
 
