@@ -9,14 +9,16 @@ const CompraTable = ({ compras, onOpenDialog }) => {
         <TableHead>
           <TableRow>
             <TableCell>NO</TableCell>
-            <TableCell>DESCRIPCIÓN DE COMPRA</TableCell>
+            <TableCell>TOTAL</TableCell>
+            <TableCell>ESTADO</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {compras.map((compra, index) => (
             <TableRow key={compra.id}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{compra.nombre}</TableCell>
+              <TableCell>{compra.total}</TableCell>
+              <TableCell>{compra.estado}</TableCell>
             </TableRow>
           ))}
         </TableBody>

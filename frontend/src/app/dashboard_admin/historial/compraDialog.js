@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, MenuItem } from '@mui/material';
+import { handleAxiosError,  handleAxios } from '@/helpers/axiosConfig';
 
 const estados = ['En proceso', 'Enviado', 'Entregado'];
 
 const CompraDialog = ({ compra, onClose, onUpdateEstado }) => {
-  const [estado, setEstado] = React.useState(compra.estado);
+  const [state, setState] = React.useState(compra.estado);
 
   const handleChangeEstado = (event) => {
-    setEstado(event.target.value);
+    setState(event.target.value);
   };
 
-  const handleSave = () => {
-    onUpdateEstado(compra.id, estado);
+  const handleSave = async () => {
+    onUpdateEstado(compra.id, state);
+    try {
+      const formData = {estado:state}
+      const response = await handleAxios().patch('/compra/1', formData); //TODO: cambiar endpoint por la compraid
+      console.log(response);
+    } catch (error) {
+      handleAxiosError(error);
+    }
     onClose();
   };
 
@@ -29,7 +37,7 @@ const CompraDialog = ({ compra, onClose, onUpdateEstado }) => {
         <TextField
           label="Estado"
           select
-          value={estado}
+          value={state}
           onChange={handleChangeEstado}
           fullWidth
           margin="dense"

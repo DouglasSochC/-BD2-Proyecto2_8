@@ -9,7 +9,28 @@ import CompraDialog from './compraDialog';
 // Bootstrap
 import { Col, Row, Form, Modal, Table, Button } from 'react-bootstrap';
 
-
+/*const compras1 = [
+    {
+      usuario: 1,
+      libros: [
+        {
+          libro: 20,
+          cantidad: 2,
+          precio: 15.99
+        },
+        {
+          libro: 30,
+          cantidad: 1,
+          precio: 12.99
+        }
+      ],
+      total: 39.97,
+      estado: 'En proceso',
+      direccionEnvio: '123 Main St',
+      metodoPago: 'Tarjeta de crédito',
+      fechaCompra: new Date()
+    },
+  ]*/
 
 const Historial = () => {
     
@@ -52,6 +73,7 @@ const Historial = () => {
 
     useEffect(() => {
         obtenerCompras();
+        //setCompras(compras1)
       }, []);
 
     return (
