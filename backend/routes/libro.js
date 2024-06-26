@@ -176,6 +176,55 @@ router.get('/', libros.findAll);
  */
 router.post('/:id/resenas', libros.agregarResena);
 
+// Ruta para actualizar un libro por ID
+/**
+ * @swagger
+ * /api/libro/{id}:
+ *   put:
+ *     summary: Actualiza un libro por ID
+ *     tags: [Libros]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del libro
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               titulo:
+ *                 type: string
+ *               autor:
+ *                 type: string
+ *               descripcion:
+ *                 type: string
+ *               genero:
+ *                 type: string
+ *               fechaPublicacion:
+ *                 type: string
+ *                 format: date
+ *               cantidadDisponible:
+ *                 type: number
+ *               precio:
+ *                 type: number
+ *               imagen:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Libro actualizado exitosamente
+ *       400:
+ *         description: Error al actualizar el libro
+ *       404:
+ *         description: No se encontró el libro con ese ID
+ */
+router.put('/:id', upload.single('imagen'), libros.actualizarLibro);
+
 // Ruta para eliminar un libro por ID
 /**
  * @swagger

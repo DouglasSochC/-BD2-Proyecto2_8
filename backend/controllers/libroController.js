@@ -76,37 +76,45 @@ class LibrosController {
     }
   }
 
+  // Método para actualizar un libro
   async actualizarLibro(req, res) {
     try {
-      const { titulo, autor, descripcion, precio, stock } = req.body;
-      await Libro.findByIdAndUpdate(req.params.id, {
+      const { titulo, autor, descripcion, precio, stock, genero, fechaPublicacion, cantidadDisponible } = req.body;
+
+      // Validar el ID del autor
+      if (autor && !mongoose.Types.ObjectId.isValid(autor)) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'ID de autor no válido'
+        });
+      }
+
+      const updatedData = {
         titulo,
-        autor,
         descripcion,
         precio,
         stock,
-      });
-      res.json("Libro actualizado");
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  }
+        genero,
+        fechaPublicacion,
+        cantidadDisponible,
+      };
 
-  // Eliminar un libro por ID
-  async delete(req, res) {
-    try {
-      const { id } = req.params;
-      const libroEliminado = await Libro.findByIdAndDelete(id);
-      if (!libroEliminado) {
-        return res.status(404).json({
-          status: 'fail',
-          message: 'No se encontró el libro con ese ID'
-        });
+      if (autor) {
+        updatedData.autor = autor;
       }
-      res.status(204).json({
+
+      if (req.file) {
+        updatedData.imagen = req.file.location;
+      }
+
+      // Actualizar el libro en la base de datos
+      const libroActualizado = await Libro.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+
+      res.json({
         status: 'success',
-        data: null,
-        message: 'Libro eliminado exitosamente'
+        data: {
+          libro: libroActualizado
+        }
       });
     } catch (error) {
       res.status(400).json({
@@ -146,6 +154,32 @@ class LibrosController {
       res.status(400).json({
         status: "fail",
         message: error.message,
+      });
+    }
+  }
+
+
+
+  // Eliminar un libro por ID
+  async delete(req, res) {
+    try {
+      const { id } = req.params;
+      const libroEliminado = await Libro.findByIdAndDelete(id);
+      if (!libroEliminado) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'No se encontró el libro con ese ID'
+        });
+      }
+      res.status(204).json({
+        status: 'success',
+        data: null,
+        message: 'Libro eliminado exitosamente'
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
       });
     }
   }
