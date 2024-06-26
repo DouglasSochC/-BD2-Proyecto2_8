@@ -40,11 +40,52 @@ router.post('/', upload.single('foto'), autores.create);
  * @swagger
  * /api/autor:
  *   get:
- *     summary: Obtiene todos los autores
+ *     summary: Obtiene todos los autores con filtrado y paginación
  *     tags: [Autores]
+ *     parameters:
+ *       - in: query
+ *         name: nombre
+ *         schema:
+ *           type: string
+ *         description: Filtrar autores por nombre (búsqueda parcial, no sensible a mayúsculas/minúsculas)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número de página para la paginación
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Número de elementos por página
  *     responses:
  *       200:
- *         description: Lista de todos los autores
+ *         description: Lista de autores filtrada y paginada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 results:
+ *                   type: integer
+ *                 total:
+ *                   type: integer
+ *                 page:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     autores:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Autor'
  *       400:
  *         description: Error al obtener los autores
  */

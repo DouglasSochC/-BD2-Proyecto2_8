@@ -38,10 +38,30 @@ class AutoresController {
 
   async findAll(req, res) {
     try {
-      const autores = await Autor.find().populate('libros');
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+
+      let query = {};
+
+      // Filtrar por nombre si se proporciona
+      if (req.query.nombre) {
+        query.nombre = { $regex: req.query.nombre, $options: 'i' };
+      }
+
+      const autores = await Autor.find(query)
+        .populate('libros')
+        .skip(skip)
+        .limit(limit);
+
+      const total = await Autor.countDocuments(query);
+
       res.status(200).json({
         status: 'success',
         results: autores.length,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
         data: {
           autores
         }
