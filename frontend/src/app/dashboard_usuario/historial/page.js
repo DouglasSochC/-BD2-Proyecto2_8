@@ -28,7 +28,7 @@ import { Col, Row, Form, Modal, Table, Button } from 'react-bootstrap';
       estado: 'En proceso',
       direccionEnvio: '123 Main St',
       metodoPago: 'Tarjeta de crédito',
-      fechaCompra: new Date()
+      fechaCompra: '2020/05/16'
     },
   ]*/
 
@@ -38,9 +38,9 @@ const Historial = () => {
   const [compras, setCompras] = useState([]);
   const obtenerCompras = async () => {
     try {
-      const response = await handleAxios().get('/compra');
+      const response = await handleAxios().get('/compra/usuario/1'); //TODO: cambiar endpoint por el usuario
       const data = response.data.data;
-  console.log("comrpas", compras, data);
+  
 
       setCompras(data);
     } catch (error) {
