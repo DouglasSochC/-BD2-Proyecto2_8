@@ -4,31 +4,37 @@ const Autor = require("../models/autor"); // Asumiendo que tienes un modelo de A
 class LibrosController {
   async create(req, res) {
     try {
-      // Verificar si el libro existe
-      const autorExiste  = await Autor.findById(req.body.autor);
-      console.log('libro encontrado:', autorExiste );
-      if (!autorExiste ) {
+      // Verificar si la imagen se subió correctamente por multer y multerS3
+      console.log(req.file, req.body);
+      if (!req.file) {
         return res.status(400).json({
-          status: "fail",
-          message: "El autor especificado no existe",
+          status: 'fail',
+          message: 'Debe proporcionar una imagen'
         });
       }
 
-      const nuevoLibro = await Libro.create(req.body);
+      // Crear el libro en la base de datos con la URL de la imagen en S3
+      const nuevoLibro = await Libro.create({
+        titulo: req.body.titulo,
+        autor: req.body.autor,
+        descripcion: req.body.descripcion,
+        genero: req.body.genero,
+        fechaPublicacion: req.body.fechaPublicacion,
+        cantidadDisponible: req.body.cantidadDisponible,
+        precio: req.body.precio,
+        imagen: req.file.location, // URL de la imagen en S3 (se asume que multer guarda el resultado en req.file)
+      });
 
-      // Agregar el libro al autor
-      autorExiste.libros.push(nuevoLibro._id);
-      await autorExiste.save();
       res.status(201).json({
-        status: "success",
+        status: 'success',
         data: {
-          libro: nuevoLibro,
-        },
+          libro: nuevoLibro
+        }
       });
     } catch (error) {
       res.status(400).json({
-        status: "fail",
-        message: error.message || "Error al realizar la creación del libro",
+        status: 'fail',
+        message: error.message || "Error al realizar la creación del libro"
       });
     }
   }
@@ -86,12 +92,27 @@ class LibrosController {
     }
   }
 
-  async eliminarLibro(req, res) {
+  // Eliminar un libro por ID
+  async delete(req, res) {
     try {
-      await Libro.findByIdAndDelete(req.params.id);
-      res.json("Libro eliminado");
+      const { id } = req.params;
+      const libroEliminado = await Libro.findByIdAndDelete(id);
+      if (!libroEliminado) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'No se encontró el libro con ese ID'
+        });
+      }
+      res.status(204).json({
+        status: 'success',
+        data: null,
+        message: 'Libro eliminado exitosamente'
+      });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
+      });
     }
   }
 

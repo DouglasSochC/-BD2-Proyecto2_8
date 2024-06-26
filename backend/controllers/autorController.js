@@ -1,10 +1,27 @@
 const Autor = require('../models/autor');
+const upload = require('../config/S3'); // Importar la configuración de S3 y multer
 
 class AutoresController {
   // crear un nuevo autor
   async create(req, res) {
     try {
-      const nuevoAutor = await Autor.create(req.body);
+      // Verificar si la imagen se subió correctamente por multer y multerS3
+      console.log(req.file, req.body);
+      if (!req.file) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'Debe proporcionar una imagen'
+        });
+      }
+
+      // Crear el autor en la base de datos con la URL de la foto en S3
+      const nuevoAutor = await Autor.create({
+        nombre: req.body.nombre,
+        biografia: req.body.biografia,
+        foto: req.file.location, // URL de la foto en S3 (se asume que multer guarda el resultado en req.file)
+        libros: req.body.libros
+      });
+
       res.status(201).json({
         status: 'success',
         data: {
@@ -96,67 +113,3 @@ class AutoresController {
 }
 
 module.exports = new AutoresController();
-
-// exports.crearAutor = async (req, res) => {
-//   console.log("entramos a crear autor")
-//   try {
-//     console.log(req.body);
-//     const nuevoAutor = await Autor.create(req.body);
-//     res.status(201).json({
-//       status: 'success',
-//       data: {
-//         autor: nuevoAutor
-//       }
-//     });
-//   } catch (error) {
-//     res.status(400).json({
-//       status: 'fail',
-//       message: error.message
-//     });
-//   }
-// };
-
-// exports.obtenerAutores = async (req, res) => {
-//   try {
-//     const autores = await Autor.find();
-//     res.status(200).json({
-//       status: 'success',
-//       results: autores.length,
-//       data: {
-//         autores
-//       }
-//     });
-//   } catch (error) {
-//     res.status(400).json({
-//       status: 'fail',
-//       message: error.message
-//     });
-//   }
-// };
-
-// exports.obtenerAutor = async (req, res) => {
-//   try {
-//     const autor = await Autor.findById(req.params.id).populate('libros');
-//     if (!autor) {
-//       return res.status(404).json({
-//         status: 'fail',
-//         message: 'No se encontró el autor con ese ID'
-//       });
-//     }
-//     res.status(200).json({
-//       status: 'success',
-//       data: {
-//         autor
-//       }
-//     });
-//   } catch (error) {
-//     res.status(400).json({
-//       status: 'fail',
-//       message: error.message
-//     });
-//   }
-// };
-
-// Añade aquí más funciones como actualizarAutor y eliminarAutor
-
-

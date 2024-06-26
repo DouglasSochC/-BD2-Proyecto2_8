@@ -1,7 +1,7 @@
 const express = require('express');
 const autores = require('../controllers/autorController');
+const upload = require('../config/S3');
 const router = express.Router();
-
 
 // ruta para crear un autor
 /**
@@ -32,7 +32,7 @@ const router = express.Router();
  *       400:
  *         description: Error al realizar la creación del autor
  */
-router.post('/', autores.create);
+router.post('/', upload.single('foto'), autores.create);
 
 // Ruta para obtener todos los auotres registrados
 

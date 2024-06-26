@@ -1,6 +1,5 @@
 const Usuario = require('../models/usuario');
 const bcrypt = require('bcryptjs');
-const upload = require('../config/S3');
 
 class UsuariosController {
   // Registrar un nuevo usuario

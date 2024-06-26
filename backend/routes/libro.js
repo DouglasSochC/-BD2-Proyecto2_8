@@ -1,8 +1,74 @@
 const express = require('express');
 const libros = require('../controllers/libroController');
 const router = express.Router();
+const upload = require('../config/S3');
 
 // Ruta para crear un libro
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Libro:
+ *       type: object
+ *       required:
+ *         - titulo
+ *         - autor
+ *         - descripcion
+ *         - genero
+ *         - fechaPublicacion
+ *         - cantidadDisponible
+ *         - precio
+ *         - imagen
+ *       properties:
+ *         titulo:
+ *           type: string
+ *           example: Cien Años de Soledad
+ *         autor:
+ *           type: string
+ *           example: 6678ab170f2260b428683b62
+ *         descripcion:
+ *           type: string
+ *           example: Una descripción detallada del libro.
+ *         genero:
+ *           type: string
+ *           example: Realismo Mágico
+ *         fechaPublicacion:
+ *           type: string
+ *           format: date
+ *           example: 1967-05-30
+ *         cantidadDisponible:
+ *           type: number
+ *           example: 10
+ *         precio:
+ *           type: number
+ *           example: 25.99
+ *         imagen:
+ *           type: string
+ *           example: http://example.com/imagen.jpg
+ *     Resena:
+ *       type: object
+ *       required:
+ *         - usuario
+ *         - puntuacion
+ *       properties:
+ *         usuario:
+ *           type: string
+ *           example: 6678ab170f2260b428683b62
+ *         puntuacion:
+ *           type: number
+ *           example: 5
+ *         comentario:
+ *           type: string
+ *           example: Una reseña del libro.
+ */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Libros
+ *   description: Operaciones relacionadas con libros
+ */
+
 /**
  * @swagger
  * /api/libro:
@@ -14,40 +80,14 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               titulo:
- *                 type: string
- *                 example: "Cien Años de Soledad"
- *               autor:
- *                 type: string
- *                 example: "6678ab170f2260b428683b62"
- *               descripcion:
- *                 type: string
- *                 example: "Una descripción detallada del libro."
- *               genero:
- *                 type: string
- *                 example: "Realismo Mágico"
- *               fechaPublicacion:
- *                 type: string
- *                 format: date
- *                 example: "1967-05-30"
- *               cantidadDisponible:
- *                 type: number
- *                 example: 10
- *               precio:
- *                 type: number
- *                 example: 25.99
- *               imagen:
- *                 type: string
- *                 example: "http://example.com/imagen.jpg"
+ *             $ref: '#/components/schemas/Libro'
  *     responses:
  *       201:
  *         description: Libro creado exitosamente
  *       400:
  *         description: Error al realizar la creación del libro
  */
-router.post('/', libros.create);
+router.post('/', upload.single('imagen'), libros.create);
 
 // Ruta para obtener todos los libros
 /**
@@ -135,6 +175,30 @@ router.get('/', libros.findAll);
  *         description: Libro no encontrado
  */
 router.post('/:id/resenas', libros.agregarResena);
+
+// Ruta para eliminar un libro por ID
+/**
+ * @swagger
+ * /api/libro/{id}:
+ *   delete:
+ *     summary: Elimina un libro por ID
+ *     tags: [Libros]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del libro
+ *     responses:
+ *       204:
+ *         description: Libro eliminado exitosamente
+ *       400:
+ *         description: Error al eliminar el libro
+ *       404:
+ *         description: No se encontró el libro con ese ID
+ */
+router.delete('/:id', libros.delete);
 
 module.exports = router;
 
