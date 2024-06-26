@@ -1,41 +1,22 @@
 const express = require('express');
+const compras = require('../controllers/compraController');
 const router = express.Router();
-const compraController = require('../controllers/compraController');
-const authMiddleware = require('../middleware/auth');
-
-// Crear una nueva compra
 
 /**
  * @swagger
- * /api/compras:
+ * /api/compra:
  *   post:
- *     summary: Crear una nueva compra
+ *     summary: Crear una nueva compra a partir de un pedido
  *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - usuario
- *               - libros
- *               - direccionEnvio
- *               - metodoPago
  *             properties:
- *               usuario:
+ *               pedidoId:
  *                 type: string
- *               libros:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     libro:
- *                       type: string
- *                     cantidad:
- *                       type: integer
  *               direccionEnvio:
  *                 type: string
  *               metodoPago:
@@ -44,58 +25,56 @@ const authMiddleware = require('../middleware/auth');
  *       201:
  *         description: Compra creada exitosamente
  *       400:
- *         description: Error en la solicitud
- *       401:
- *         description: No autorizado
+ *         description: Error al crear la compra
  */
-router.post('/', authMiddleware.protect, compraController.crearCompra);
-
-// Obtener compras de un usuario específico
+router.post('/', compras.crearCompra);
 
 /**
  * @swagger
- * /api/compras/usuario/{usuarioId}:
+ * /api/compra:
  *   get:
- *     summary: Obtener compras de un usuario específico
+ *     summary: Obtener todas las compras (para administradores)
  *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: usuarioId
- *         schema:
- *           type: string
- *         required: true
- *         description: ID del usuario
  *     responses:
  *       200:
  *         description: Lista de compras obtenida exitosamente
  *       400:
- *         description: Error en la solicitud
- *       401:
- *         description: No autorizado
- *       404:
- *         description: Usuario no encontrado
+ *         description: Error al obtener las compras
  */
-router.get('/usuario/:usuarioId', authMiddleware.protect, compraController.obtenerComprasUsuario);
-
-// Actualizar el estado de una compra (solo para administradores)
+router.get('/', compras.obtenerCompras);
 
 /**
  * @swagger
- * /api/compras/{compraId}:
- *   patch:
- *     summary: Actualizar el estado de una compra (solo para administradores)
+ * /api/compra/usuario/{userId}:
+ *   get:
+ *     summary: Obtener compras de un usuario específico
  *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: compraId
+ *         name: userId
+ *         required: true
  *         schema:
  *           type: string
+ *     responses:
+ *       200:
+ *         description: Compras del usuario obtenidas exitosamente
+ *       400:
+ *         description: Error al obtener las compras del usuario
+ */
+router.get('/usuario/:userId', compras.obtenerComprasUsuario);
+
+/**
+ * @swagger
+ * /api/compra/{id}:
+ *   patch:
+ *     summary: Actualizar el estado de una compra
+ *     tags: [Compras]
+ *     parameters:
+ *       - in: path
+ *         name: id
  *         required: true
- *         description: ID de la compra
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -105,37 +84,15 @@ router.get('/usuario/:usuarioId', authMiddleware.protect, compraController.obten
  *             properties:
  *               estado:
  *                 type: string
- *                 example: "Enviado"
+ *                 enum: [En proceso, Enviado, Entregado]
  *     responses:
  *       200:
  *         description: Estado de la compra actualizado exitosamente
  *       400:
- *         description: Error en la solicitud
- *       401:
- *         description: No autorizado
+ *         description: Error al actualizar el estado de la compra
  *       404:
  *         description: Compra no encontrada
  */
-router.patch('/:compraId', authMiddleware.protect, authMiddleware.restringirA('Administrador'), compraController.actualizarEstadoCompra);
-
-// Obtener todas las compras (solo para administradores)
-
-/**
- * @swagger
- * /api/compras:
- *   get:
- *     summary: Obtener todas las compras (solo para administradores)
- *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Lista de todas las compras obtenida exitosamente
- *       400:
- *         description: Error en la solicitud
- *       401:
- *         description: No autorizado
- */
-router.get('/', authMiddleware.protect, authMiddleware.restringirA('Administrador'), compraController.obtenerTodasLasCompras);
+router.patch('/:id', compras.actualizarEstadoCompra);
 
 module.exports = router;

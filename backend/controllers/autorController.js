@@ -38,7 +38,15 @@ class AutoresController {
 
   async findAll(req, res) {
     try {
-      const autores = await Autor.find().populate('libros');
+      let query = {};
+
+      // Filtrar por nombre si se proporciona
+      if (req.query.nombre) {
+        query.nombre = { $regex: req.query.nombre, $options: 'i' };
+      }
+
+      const autores = await Autor.find(query).populate('libros');
+
       res.status(200).json({
         status: 'success',
         results: autores.length,
