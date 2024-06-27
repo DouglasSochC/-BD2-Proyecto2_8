@@ -3,9 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Form, InputGroup } from 'react-bootstrap';
 import { handleAxios, handleAxiosError } from '@/helpers/axiosConfig';
 import ReactPaginate from 'react-paginate';
+import { useRouter } from 'next/navigation';
 
 const AutorCatalogo = () => {
 
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [currentItems, setCurrentItems] = useState([]);
@@ -38,6 +40,10 @@ const AutorCatalogo = () => {
     obtenerAutores();
   }, [search, currentPage]);
 
+  const handleVerAutor = (id) => {
+    router.push("/dashboard_usuario/autor/?id=" + id);
+  }
+
   return (
     <Container>
       <h1 className="text-center my-4">Catalogo Autores</h1>
@@ -63,7 +69,7 @@ const AutorCatalogo = () => {
                   <Card.Body>
                     <Card.Title>{autor.nombre}</Card.Title>
                     <Card.Text>{autor.biografia.slice(0, 100)}...</Card.Text>
-                    <Button variant="primary">Ver</Button>
+                    <Button variant="primary" onClick={() => handleVerAutor(autor._id)}>Ver</Button>
                   </Card.Body>
                 </Card>
               </Col>
