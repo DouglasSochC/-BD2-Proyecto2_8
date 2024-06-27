@@ -1,5 +1,6 @@
 const Libro = require("../models/libro");
 const Autor = require("../models/autor"); // Asumiendo que tienes un modelo de Autor
+const Usuario = require("../models/usuario"); // Asumiendo que tienes un modelo de Usuario
 
 class LibrosController {
   async create(req, res) {
@@ -129,20 +130,37 @@ class LibrosController {
       const { id } = req.params;
       const { usuario, puntuacion, comentario } = req.body;
 
+      // Encontrar el libro por ID
       const libro = await Libro.findById(id);
       if (!libro) {
         return res.status(404).json({ message: "Libro no encontrado" });
       }
 
+      // Encontrar el usuario por ID
+      const user = await Usuario.findById(usuario);
+      if (!user) {
+        return res.status(404).json({ message: "Usuario no encontrado" });
+      }
+
+      // Concatenar nombre y apellido del usuario
+      const usuarioNombre = `${user.nombre} ${user.apellido}`;
+
       // Agregar la nueva reseña
-      libro.resenas.push({ usuario, puntuacion, comentario });
+      libro.resenas.push({
+        usuarioId: usuario,
+        usuarioNombre, // Usar el campo correcto del modelo
+        puntuacion,
+        comentario
+      });
 
       // Recalcular la puntuación media
       const totalPuntuaciones = libro.resenas.reduce((sum, resena) => sum + resena.puntuacion, 0);
       libro.puntuacionMedia = totalPuntuaciones / libro.resenas.length;
 
+      // Guardar el libro actualizado en la base de datos
       await libro.save();
 
+      // Responder con el libro actualizado
       res.status(201).json({
         status: "success",
         data: {
