@@ -1,12 +1,12 @@
 const express = require('express');
 const autores = require('../controllers/autorController');
+const upload = require('../config/S3');
 const router = express.Router();
-
 
 // ruta para crear un autor
 /**
  * @swagger
- * /api/autores:
+ * /api/autor:
  *   post:
  *     summary: Crea un nuevo autor
  *     tags: [Autores]
@@ -32,47 +32,110 @@ const router = express.Router();
  *       400:
  *         description: Error al realizar la creación del autor
  */
-router.post('/', autores.create);
+router.post('/', upload.single('foto'), autores.create);
 
 // Ruta para obtener todos los auotres registrados
 
 /**
  * @swagger
- * /api/autores:
+ * /api/autor:
  *   get:
- *     summary: Obtiene todos los autores
+ *     summary: Obtiene todos los autores, con filtrado opcional por nombre
  *     tags: [Autores]
+ *     parameters:
+ *       - in: query
+ *         name: nombre
+ *         schema:
+ *           type: string
+ *         description: Nombre del autor para buscar (búsqueda parcial, no sensible a mayúsculas/minúsculas)
  *     responses:
  *       200:
- *         description: Lista de todos los autores
+ *         description: Lista de autores filtrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     autores:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Autor'
  *       400:
  *         description: Error al obtener los autores
+ *       404:
+ *         description: No se encontró ningún autor con ese nombre exacto
  */
 router.get('/', autores.findAll);
+
+
 
 //Ruta para obtener un solo autor
 /**
  * @swagger
- * /api/autores/{nombre}:
+ * /api/autor/{id}:
  *   get:
- *     summary: Obtiene un autor por nombre
+ *     summary: Obtiene un autor por ID
  *     tags: [Autores]
  *     parameters:
  *       - in: path
- *         name: nombre
+ *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: Nombre del autor
+ *         description: ID del autor
  *     responses:
  *       200:
- *         description: Información del autor
+ *         description: Información del autor obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     autor:
+ *                       $ref: '#/components/schemas/Autor'
  *       400:
- *         description: Por favor, proporciona un nombre de autor
+ *         description: Error en la solicitud
  *       404:
- *         description: No se encontró ningún autor con ese nombre exacto
+ *         description: Autor no encontrado
  */
-router.get('/:nombre', autores.findOne);
+router.get('/:id', autores.findOne);
+
+
+// Ruta para eliminar un autor
+/**
+ * @swagger
+ * /api/autor/{id}:
+ *   delete:
+ *     summary: Elimina un autor por ID
+ *     tags: [Autores]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del autor
+ *     responses:
+ *       204:
+ *         description: Autor eliminado exitosamente
+ *       400:
+ *         description: Error al eliminar el autor
+ *       404:
+ *         description: No se encontró el autor con ese ID
+ */
+router.delete('/:id', autores.delete);
 
 
 module.exports = router;

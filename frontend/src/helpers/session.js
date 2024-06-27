@@ -9,5 +9,9 @@ export const cerrarSesion = () => {
 };
 
 export const obtenerDatosUsuario = () => {
-    return JSON.parse(Cookies.get('auth'));
+    const authData = Cookies.get('auth');
+    if (!authData) {
+        return null;
+    }
+    return JSON.parse(authData);
 };

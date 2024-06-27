@@ -27,7 +27,7 @@ import CompraDialog from './compraDialog';
       estado: 'En proceso',
       direccionEnvio: '123 Main St',
       metodoPago: 'Tarjeta de crédito',
-      fechaCompra: new Date()
+      fechaCompra: '2020/05/16'
     },
   ]*/
 
@@ -37,9 +37,9 @@ const Historial = () => {
   const [compras, setCompras] = useState([]);
   const obtenerCompras = async () => {
     try {
-      const response = await handleAxios().get('/compra'); //TODO: cambiar endpoint por el correspondiente http://localhost:5000/api/compra
-      const data = response.data.data.compras;
-  console.log("comrpas", compras, data);
+      const response = await handleAxios().get(`/compra/usuario/${usuario}`); //TODO: cambiar endpoint por el usuario http://localhost:5000/api/compra/${compra._id}
+      const data = response.data.data;
+  
 
       setCompras(data);
     } catch (error) {
@@ -65,10 +65,6 @@ const Historial = () => {
         }));
         // Aquí deberías actualizar el estado en tu base de datos también
     };
-
-    // data: {
-    //  compras
-    //}
 
     useEffect(() => {
         obtenerCompras();

@@ -1,18 +1,13 @@
 const express = require('express');
+const compras = require('../controllers/compraController');
 const router = express.Router();
-const compraController = require('../controllers/compraController');
-const authMiddleware = require('../middleware/auth');
-
-// Crear una nueva compra
 
 /**
  * @swagger
- * /api/compras:
+ * /api/pedido/carrito:
  *   post:
- *     summary: Crear una nueva compra
- *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
+ *     summary: Agregar libro al carrito
+ *     tags: [Pedido]
  *     requestBody:
  *       required: true
  *       content:
@@ -20,22 +15,46 @@ const authMiddleware = require('../middleware/auth');
  *           schema:
  *             type: object
  *             required:
- *               - usuario
- *               - libros
+ *               - usuarioId
+ *               - libroId
+ *               - cantidad
+ *             properties:
+ *               usuarioId:
+ *                 type: string
+ *               libroId:
+ *                 type: string
+ *               cantidad:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Libro agregado al carrito exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Pedido'
+ *       400:
+ *         description: Error en la solicitud
+ */
+
+/**
+ * @swagger
+ * /api/compra:
+ *   post:
+ *     summary: Crear una nueva compra
+ *     tags: [Compra]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - pedidoId
  *               - direccionEnvio
  *               - metodoPago
  *             properties:
- *               usuario:
+ *               pedidoId:
  *                 type: string
- *               libros:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     libro:
- *                       type: string
- *                     cantidad:
- *                       type: integer
  *               direccionEnvio:
  *                 type: string
  *               metodoPago:
@@ -45,97 +64,67 @@ const authMiddleware = require('../middleware/auth');
  *         description: Compra creada exitosamente
  *       400:
  *         description: Error en la solicitud
- *       401:
- *         description: No autorizado
  */
-router.post('/', authMiddleware.protect, compraController.crearCompra);
-
-// Obtener compras de un usuario específico
+router.post('/compra', compras.crearCompra);
 
 /**
  * @swagger
- * /api/compras/usuario/{usuarioId}:
- *   get:
- *     summary: Obtener compras de un usuario específico
- *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: usuarioId
- *         schema:
- *           type: string
- *         required: true
- *         description: ID del usuario
- *     responses:
- *       200:
- *         description: Lista de compras obtenida exitosamente
- *       400:
- *         description: Error en la solicitud
- *       401:
- *         description: No autorizado
- *       404:
- *         description: Usuario no encontrado
- */
-router.get('/usuario/:usuarioId', authMiddleware.protect, compraController.obtenerComprasUsuario);
-
-// Actualizar el estado de una compra (solo para administradores)
-
-/**
- * @swagger
- * /api/compras/{compraId}:
- *   patch:
- *     summary: Actualizar el estado de una compra (solo para administradores)
- *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
+ * /api/compra/{compraId}/confirmar-envio:
+ *   put:
+ *     summary: Confirmar envío de una compra (para administradores)
+ *     tags: [Compra]
  *     parameters:
  *       - in: path
  *         name: compraId
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: ID de la compra
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               estado:
- *                 type: string
- *                 example: "Enviado"
  *     responses:
  *       200:
- *         description: Estado de la compra actualizado exitosamente
- *       400:
- *         description: Error en la solicitud
- *       401:
- *         description: No autorizado
+ *         description: Envío confirmado exitosamente
  *       404:
  *         description: Compra no encontrada
  */
-router.patch('/:compraId', authMiddleware.protect, authMiddleware.restringirA('Administrador'), compraController.actualizarEstadoCompra);
-
-// Obtener todas las compras (solo para administradores)
+router.put('/compra/:compraId/confirmar-envio', compras.confirmarEnvio);
 
 /**
  * @swagger
- * /api/compras:
- *   get:
- *     summary: Obtener todas las compras (solo para administradores)
- *     tags: [Compras]
- *     security:
- *       - bearerAuth: []
+ * /api/compra/{compraId}/confirmar-entrega:
+ *   put:
+ *     summary: Confirmar entrega de una compra (para usuarios)
+ *     tags: [Compra]
+ *     parameters:
+ *       - in: path
+ *         name: compraId
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: Lista de todas las compras obtenida exitosamente
- *       400:
- *         description: Error en la solicitud
- *       401:
- *         description: No autorizado
+ *         description: Entrega confirmada exitosamente
+ *       404:
+ *         description: Compra no encontrada
  */
-router.get('/', authMiddleware.protect, authMiddleware.restringirA('Administrador'), compraController.obtenerTodasLasCompras);
+router.put('/compra/:compraId/confirmar-entrega', compras.confirmarEntrega);
+
+/**
+ * @swagger
+ * /api/compra/{compraId}:
+ *   get:
+ *     summary: Obtener detalles de una compra
+ *     tags: [Compra]
+ *     parameters:
+ *       - in: path
+ *         name: compraId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Detalles de la compra obtenidos exitosamente
+ *       404:
+ *         description: Compra no encontrada
+ */
+router.get('/compra/:compraId', compras.obtenerCompra);
 
 module.exports = router;

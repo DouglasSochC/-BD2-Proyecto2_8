@@ -52,6 +52,11 @@ const libroSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Usuario'
     },
+    usuarioNombre: {
+      type: String,
+      required: true,
+      trim: true
+    },
     puntuacion: {
       type: Number,
       required: true,

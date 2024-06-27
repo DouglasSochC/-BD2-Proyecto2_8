@@ -1,34 +1,41 @@
 const Libro = require("../models/libro");
 const Autor = require("../models/autor"); // Asumiendo que tienes un modelo de Autor
+const Usuario = require("../models/usuario"); // Asumiendo que tienes un modelo de Usuario
 
 class LibrosController {
   async create(req, res) {
     try {
-      // Verificar si el libro existe
-      const autorExiste  = await Autor.findById(req.body.autor);
-      console.log('libro encontrado:', autorExiste );
-      if (!autorExiste ) {
+      // Verificar si la imagen se subió correctamente por multer y multerS3
+      console.log(req.file, req.body);
+      if (!req.file) {
         return res.status(400).json({
-          status: "fail",
-          message: "El autor especificado no existe",
+          status: 'fail',
+          message: 'Debe proporcionar una imagen'
         });
       }
 
-      const nuevoLibro = await Libro.create(req.body);
+      // Crear el libro en la base de datos con la URL de la imagen en S3
+      const nuevoLibro = await Libro.create({
+        titulo: req.body.titulo,
+        autor: req.body.autor,
+        descripcion: req.body.descripcion,
+        genero: req.body.genero,
+        fechaPublicacion: req.body.fechaPublicacion,
+        cantidadDisponible: req.body.cantidadDisponible,
+        precio: req.body.precio,
+        imagen: req.file.location, // URL de la imagen en S3 (se asume que multer guarda el resultado en req.file)
+      });
 
-      // Agregar el libro al autor
-      autorExiste.libros.push(nuevoLibro._id);
-      await autorExiste.save();
       res.status(201).json({
-        status: "success",
+        status: 'success',
         data: {
-          libro: nuevoLibro,
-        },
+          libro: nuevoLibro
+        }
       });
     } catch (error) {
       res.status(400).json({
-        status: "fail",
-        message: error.message || "Error al realizar la creación del libro",
+        status: 'fail',
+        message: error.message || "Error al realizar la creación del libro"
       });
     }
   }
@@ -70,28 +77,51 @@ class LibrosController {
     }
   }
 
+  // Método para actualizar un libro
   async actualizarLibro(req, res) {
     try {
-      const { titulo, autor, descripcion, precio, stock } = req.body;
-      await Libro.findByIdAndUpdate(req.params.id, {
+      const { titulo, autor, descripcion, precio, stock, genero, fechaPublicacion, cantidadDisponible } = req.body;
+
+      // Validar el ID del autor
+      if (!autor) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'ID de autor no válido'
+        });
+      }
+
+      const updatedData = {
         titulo,
-        autor,
         descripcion,
         precio,
         stock,
-      });
-      res.json("Libro actualizado");
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  }
+        genero,
+        fechaPublicacion,
+        cantidadDisponible,
+      };
 
-  async eliminarLibro(req, res) {
-    try {
-      await Libro.findByIdAndDelete(req.params.id);
-      res.json("Libro eliminado");
+      if (autor) {
+        updatedData.autor = autor;
+      }
+
+      if (req.file) {
+        updatedData.imagen = req.file.location;
+      }
+
+      // Actualizar el libro en la base de datos
+      const libroActualizado = await Libro.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+
+      res.json({
+        status: 'success',
+        data: {
+          libro: libroActualizado
+        }
+      });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
+      });
     }
   }
 
@@ -100,21 +130,37 @@ class LibrosController {
       const { id } = req.params;
       const { usuario, puntuacion, comentario } = req.body;
 
+      // Encontrar el libro por ID
       const libro = await Libro.findById(id);
-      console.log("libro:", libro)
       if (!libro) {
         return res.status(404).json({ message: "Libro no encontrado" });
       }
 
+      // Encontrar el usuario por ID
+      const user = await Usuario.findById(usuario);
+      if (!user) {
+        return res.status(404).json({ message: "Usuario no encontrado" });
+      }
+
+      // Concatenar nombre y apellido del usuario
+      const usuarioNombre = `${user.nombre} ${user.apellido}`;
+
       // Agregar la nueva reseña
-      libro.resenas.push({ usuario, puntuacion, comentario });
+      libro.resenas.push({
+        usuarioId: usuario,
+        usuarioNombre, // Usar el campo correcto del modelo
+        puntuacion,
+        comentario
+      });
 
       // Recalcular la puntuación media
       const totalPuntuaciones = libro.resenas.reduce((sum, resena) => sum + resena.puntuacion, 0);
       libro.puntuacionMedia = totalPuntuaciones / libro.resenas.length;
 
+      // Guardar el libro actualizado en la base de datos
       await libro.save();
 
+      // Responder con el libro actualizado
       res.status(201).json({
         status: "success",
         data: {
@@ -125,6 +171,30 @@ class LibrosController {
       res.status(400).json({
         status: "fail",
         message: error.message,
+      });
+    }
+  }
+
+  // Eliminar un libro por ID
+  async delete(req, res) {
+    try {
+      const { id } = req.params;
+      const libroEliminado = await Libro.findByIdAndDelete(id);
+      if (!libroEliminado) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'No se encontró el libro con ese ID'
+        });
+      }
+      res.status(204).json({
+        status: 'success',
+        data: null,
+        message: 'Libro eliminado exitosamente'
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
       });
     }
   }

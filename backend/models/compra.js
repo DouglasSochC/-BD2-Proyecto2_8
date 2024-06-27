@@ -1,27 +1,16 @@
 const mongoose = require('mongoose');
 
 const compraSchema = new mongoose.Schema({
+  pedido: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Pedido',
+    required: true
+  },
   usuario: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Usuario',
     required: true
   },
-  libros: [{
-    libro: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Libro',
-      required: true
-    },
-    cantidad: {
-      type: Number,
-      required: true,
-      min: 1
-    },
-    precio: {
-      type: Number,
-      required: true
-    }
-  }],
   total: {
     type: Number,
     required: true
@@ -39,9 +28,9 @@ const compraSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  fechaCompra: {
-    type: Date,
-    default: Date.now
+  entregaConfirmada: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

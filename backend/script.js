@@ -26,7 +26,8 @@ const connectDB = async () => {
       edad: 30,
       correoElectronico: 'admin@example.com',
       contrasena: 'adminpassword', // Asegúrate de cambiar esto por una contraseña segura
-      rol: 'Administrador'
+      rol: 'Administrador',
+      saldo: 30000
     });
     await nuevoAdmin.save();
     console.log('Usuario administrador creado exitosamente.');
