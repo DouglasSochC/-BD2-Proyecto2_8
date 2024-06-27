@@ -15,8 +15,10 @@ const CompraDialog = ({ compra, onClose, onUpdateEstado }) => {
     onUpdateEstado(compra.id, state);
     try {
       const formData = {estado:state}
-      const response = await handleAxios().patch('/compra/1', formData); //TODO: cambiar endpoint por la compraid
+      //console.log('el id: '+compra._id);
+      const response = await handleAxios().patch(`/compra/${compra._id}`, formData); //TODO: cambiar endpoint por el correspondiente http://localhost:5000/api/compra/${compra._id}
       console.log(response);
+      location.reload();
     } catch (error) {
       handleAxiosError(error);
     }
@@ -64,7 +66,7 @@ const CompraDialog = ({ compra, onClose, onUpdateEstado }) => {
         />
         <TextField
           label="Fecha de Compra"
-          value={compra.fechaCompra.toLocaleDateString()}
+          value={compra.fechaCompra}
           fullWidth
           margin="dense"
           disabled

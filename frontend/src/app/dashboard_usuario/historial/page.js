@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 // Axios
-import { handleAxios, handleAxiosMultipart, handleAxiosError, handleAxiosMsg } from '@/helpers/axiosConfig';
+import { handleAxios,  handleAxiosError} from '@/helpers/axiosConfig';
 // Bootstrap
 import CompraTable from './compraTable';
 import CompraDialog from './compraDialog';
 // Bootstrap
-import { Col, Row, Form, Modal, Table, Button } from 'react-bootstrap';
 
 /*const compras1 = [
     {
@@ -38,7 +37,7 @@ const Historial = () => {
   const [compras, setCompras] = useState([]);
   const obtenerCompras = async () => {
     try {
-      const response = await handleAxios().get('/compra/usuario/1'); //TODO: cambiar endpoint por el usuario
+      const response = await handleAxios().get(`/compra/usuario/${usuario}`); //TODO: cambiar endpoint por el usuario http://localhost:5000/api/compra/${compra._id}
       const data = response.data.data;
   
 
@@ -66,10 +65,6 @@ const Historial = () => {
         }));
         // Aquí deberías actualizar el estado en tu base de datos también
     };
-
-    // data: {
-    //  compras
-    //}
 
     useEffect(() => {
         obtenerCompras();
