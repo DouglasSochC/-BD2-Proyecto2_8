@@ -53,13 +53,9 @@ const Libro = () => {
     if (id != null) {
       const obtenerLibro = async () => {
         try {
-          const response = await handleAxios().get('/libro', {
-            params: {
-              id_libro: id
-            }
-          });
-          setLibro(response.data[0]);
-          setResenas(response.data[0].resenas);
+          const response = await handleAxios().get('/libro/' + id);
+          setLibro(response.data);
+          setResenas(response.data.resenas);
         } catch (error) {
           handleAxiosError(error);
         }

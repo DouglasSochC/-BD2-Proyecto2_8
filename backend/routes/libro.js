@@ -135,6 +135,8 @@ router.post('/', upload.single('imagen'), libros.create);
  */
 router.get('/', libros.findAll);
 
+router.get('/:id', libros.obtenerLibro);
+
 // Ruta para agregar una reseña a un libro
 
 /**
