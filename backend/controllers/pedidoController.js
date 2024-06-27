@@ -55,7 +55,8 @@ class PedidoController {
   // Actualizar carrito
   async actualizarCarrito(req, res) {
     try {
-      const { usuarioId, libros } = req.body;
+      const { usuarioId } = req.params; // Obtener usuarioId de los parámetros de la ruta
+      const { libros } = req.body;
 
       const pedido = await Pedido.findOne({ usuario: usuarioId, estado: 'En carrito' });
       if (!pedido) {
