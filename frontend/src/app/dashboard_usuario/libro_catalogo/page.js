@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 // Bootstrap
-import { Container, Row, Col, Card, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, InputGroup, ListGroup } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 // Axios
 import { handleAxios, handleAxiosError } from '@/helpers/axiosConfig';
@@ -15,6 +15,7 @@ import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 const LibroCatalogo = () => {
 
   const router = useRouter();
+  const [tipoFiltro, setTipoFiltro] = useState("titulo");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [currentItems, setCurrentItems] = useState([]);
@@ -67,17 +68,24 @@ const LibroCatalogo = () => {
 
       <Row>
         <Col md={2}>
-          <Dropdown>
-            <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-              Selected Item
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Form.Control type="text" placeholder="Search here..." />
-              <Dropdown.Item>Genero</Dropdown.Item>
-              <Dropdown.Item>Precio</Dropdown.Item>
-              <Dropdown.Item>Puntuacion</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+          <b>Filtrar según:</b><br /><br />
+          <ListGroup>
+            <ListGroup.Item action onClick={() => setTipoFiltro("titulo")}>
+              Titulo
+            </ListGroup.Item>
+            <ListGroup.Item action onClick={() => setTipoFiltro("genero")}>
+              Genero
+            </ListGroup.Item>
+            <ListGroup.Item action onClick={() => setTipoFiltro("precio")}>
+              Precio
+            </ListGroup.Item>
+            <ListGroup.Item action onClick={() => setTipoFiltro("puntuacionMedia")}>
+              Puntuacion
+            </ListGroup.Item>
+            <ListGroup.Item action onClick={() => setTipoFiltro("autor")}>
+              Autor
+            </ListGroup.Item>
+          </ListGroup>
         </Col>
         <Col md={10}>
           <Row>
