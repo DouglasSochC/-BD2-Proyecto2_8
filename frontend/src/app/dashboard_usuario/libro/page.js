@@ -1,33 +1,51 @@
 'use client'
 
 // React
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // Bootstrap
-import { Card, Row, Col, ListGroup, Accordion, ListGroupItem, Form, Button } from 'react-bootstrap';
-import { StarFill, StarHalf, Star } from 'react-bootstrap-icons';
+import { Card, Row, Col, ListGroup, Accordion, Form, Button } from 'react-bootstrap';
+// ReactStars
+import { Rating } from 'react-simple-star-rating'
 // Axios
 import { handleAxios, handleAxiosError } from '@/helpers/axiosConfig';
 // Next
 import { useSearchParams } from 'next/navigation';
+// Session
+import { obtenerDatosUsuario } from "@/helpers/session";
 
-const BookDetail = () => {
+const Libro = () => {
 
   const searchParams = useSearchParams();
+  const [libro, setLibro] = useState(null);
+  const [puntuacion, setPuntuacion] = useState(0);
+  const [resenas, setResenas] = useState([]);
 
-  const book = {
-    title: "Libro 1",
-    author: "Autor 1",
-    description: "Descripcion",
-    genre: "Genero",
-    availability: "Disponibilidad",
-    rating: 4.5,
-    comments: ["Comentario 1", "Comentario 2", "Comentario 3", "Comentario 4"],
-    userReview: {
-      user: "Usuario 1",
-      review: "libro interesante",
-      rating: 3
+  const handleHacerResena = async (e) => {
+
+    e.preventDefault();
+
+    try {
+      const formData = new FormData();
+      const id = searchParams.get('id');
+      const comentario = e.target[0].value;
+      const usuario = obtenerDatosUsuario();
+      formData.append('comentario', comentario);
+      formData.append('puntuacion', puntuacion);
+      formData.append('usuario', usuario._id);
+      const response = await handleAxios().post(`/libro/${id}/resenas`, formData);
+      const libroAux = response.data.data.libro;
+      setLibro({ ...libro, puntuacionMedia: libroAux.puntuacionMedia });
+      setResenas(libroAux.resenas);
+
+      // Se limpia el formulario
+      e.target[0].value = '';
+      setPuntuacion(0);
     }
-  };
+    catch (error) {
+      handleAxiosError(error);
+    }
+
+  }
 
   useEffect(() => {
 
@@ -35,12 +53,13 @@ const BookDetail = () => {
     if (id != null) {
       const obtenerLibro = async () => {
         try {
-          const responseLibros = await handleAxios().get('/libro', {
+          const response = await handleAxios().get('/libro', {
             params: {
-              libro: id
+              id_libro: id
             }
           });
-          // setLibros(responseLibros.data);
+          setLibro(response.data[0]);
+          setResenas(response.data[0].resenas);
         } catch (error) {
           handleAxiosError(error);
         }
@@ -50,62 +69,66 @@ const BookDetail = () => {
 
   }, []);
 
-  const renderStars = (rating) => {
-    let stars = [];
-    for (let i = 1; i <= 5; i++) {
-      if (i <= rating) {
-        stars.push(<StarFill key={i} />);
-      } else if (i === Math.ceil(rating) && !Number.isInteger(rating)) {
-        stars.push(<StarHalf key={i} />);
-      } else {
-        stars.push(<Star key={i} />);
-      }
-    }
-    return stars;
-  };
-
   return (
     <Card>
       <Card.Body>
         <Row>
           <Col md={3}>
-            <Card.Img variant="top" src='https://via.placeholder.com/150' /> {/* Reemplaza con la URL de la imagen */}
+            <Card.Img variant="top" src={libro ? libro.imagen : 'https://via.placeholder.com/150'} /> {/* Reemplaza con la URL de la imagen */}
+            <Rating
+              initialValue={libro ? libro.puntuacionMedia : 0}
+              readonly
+              size={50}
+              showTooltip={true}
+              tooltipDefaultText="Sin puntuación"
+            />
           </Col>
           <Col md={9}>
-            <Card.Title>{book.title}</Card.Title>
-            <Card.Text>Autor: {book.author}</Card.Text>
-            <Card.Text>Descripcion: {book.description}</Card.Text>
-            <Card.Text>Genero: {book.genre}</Card.Text>
-            <Card.Text>Disponibilidad: {book.availability}</Card.Text>
+            <Card.Title>{libro ? libro.titulo : ''}</Card.Title>
+            <Card.Text><b>Autor:</b> {libro ? libro.autor.nombre : ''}</Card.Text>
+            <Card.Text><b>Genero: </b>{libro ? libro.genero : ''}</Card.Text>
+            <Card.Text><b>Cantidad disponible: </b>{libro ? libro.cantidadDisponible : ''}</Card.Text>
+            <Card.Text><b>Descripcion: </b>{libro ? libro.descripcion : ''}</Card.Text>
+
+            <b>Agregar Reseña: </b>
+            <Form onSubmit={handleHacerResena}>
+              <Form.Group>
+                <Form.Control as="textarea" rows={3} />
+              </Form.Group>
+              <Form.Group>
+                <Rating
+                  size={25}
+                  initialValue={puntuacion}
+                  onClick={(value) => setPuntuacion(value)}
+                />
+              </Form.Group>
+              <br />
+              <Button variant="primary" type="submit">
+                Enviar
+              </Button>
+            </Form>
           </Col>
         </Row>
         <Row className="mt-3">
-          <Col md={3} className="text-center">
-            <h4>{book.rating}</h4>
-            <div>{renderStars(book.rating)}</div>
-          </Col>
-          <Col md={9}>
+          <Col md={12}>
             <h5>Reseñas</h5>
             <ListGroup variant="flush">
               <Accordion defaultActiveKey="0">
-                {book.comments.map((comment, index) => (
+                {resenas.map((resena, index) => (
                   <Accordion.Item eventKey={index} key={index}>
-                    <Accordion.Header>{comment}</Accordion.Header>
-                    {/* <Accordion.Body>
-                  <Row className="my-4">
-                    <Col xs={12} md={3}>
-                      <Image src={libro ? libro.imagen : 'https://via.placeholder.com/150'} style={{ width: 'auto', height: '300px', aspectRatio: '3/4' }} />
-                    </Col>
-                    <Col xs={12} md={9}>
-                      <b>Fecha de publicación: </b>{libro.fechaPublicacion}<br />
-                      <b>Genero: </b>{libro.genero}<br />
-                      <b>Precio: </b>{libro.precio}<br />
-                      <b>Cantidad disponible: </b>{libro.cantidadDisponible}<br />
-                      <b>Descripcion: </b>{libro.descripcion}
-                    </Col>
-                  </Row>
-                  {libro.detalles}
-                </Accordion.Body> */}
+                    <Accordion.Header>{index + 1} - Comentario de '{resena.usuarioNombre}'</Accordion.Header>
+                    <Accordion.Body>
+                      <Row className="my-4">
+                        <Col xs={12} md={12}>
+                          <b>Fecha de publicación: </b>{resena.fecha}<br />
+                          <b>Puntuación: </b><Rating
+                            size={20}
+                            initialValue={resena.puntuacion}
+                          /><br />
+                          <b>Comentario: </b>{resena.comentario}<br />
+                        </Col>
+                      </Row>
+                    </Accordion.Body>
                   </Accordion.Item>
                 ))}
               </Accordion>
@@ -117,4 +140,4 @@ const BookDetail = () => {
   );
 };
 
-export default BookDetail;
+export default Libro;
