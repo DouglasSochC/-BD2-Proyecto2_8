@@ -10,7 +10,7 @@ export default function Layout({ children }) {
     <>
       <Sidebar routes={[
         { title: "Catalogo Autores", link: "/dashboard_usuario/autor_catalogo", icon: faAddressBook },
-        { title: "Catalogo", link: "/dashboard_usuario/catalogo", icon: faUserPen },
+        { title: "Catalogo Libros", link: "/dashboard_usuario/catalogo", icon: faUserPen },
         { title: "Historial", link: "/dashboard_usuario/historial", icon: faClockRotateLeft },
         { title: "Carrito", link: "/dashboard_usuario/carrito", icon: faShoppingCart },
       ]} />
