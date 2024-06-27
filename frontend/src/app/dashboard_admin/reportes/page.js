@@ -24,11 +24,13 @@ const Reportes = () => {
 
     const obtenerGraficos = async () => {
         try {
-            const response = await handleAxios().get('/reporte/top-libros');
+            const response = await handleAxios().get('/reporte/top-libros'); //TODO:  modificar endpoint http://localhost:5000/api/reporte/top-libros
             //const data = dataa;
 
-            const libros = response.map(item => item.libro);
-            const totalVentas = response.map(item => item.totalVentas);
+            console.log('el status es ' +response.status);
+
+            const libros = response.data.data.topLibros.map(item => item.libro);
+            const totalVentas = response.data.data.topLibros.map(item => item.totalVentas);
 
             setChartData({
                 labels: libros,
