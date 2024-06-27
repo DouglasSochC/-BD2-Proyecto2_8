@@ -49,6 +49,14 @@ const usuarioSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     min: 0
+  },
+  telefono: {
+    type: String,
+    default: ''
+  },
+  fechaRegistro: {
+    type: Date,
+    default: Date.now // Fecha actual
   }
 }, {
   timestamps: true

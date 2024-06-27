@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link'
 import { crearSession } from '@/helpers/session';
 import { Row, Col, Button, Form, InputGroup, Container } from 'react-bootstrap';
-import { faEnvelope, faUser, faMapLocation, faHashtag, faMoneyBill, faUnlockAlt } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faUser, faMapLocation, faHashtag, faMoneyBill, faUnlockAlt, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { handleAxiosError, handleSwal, handleAxios } from '@/helpers/axiosConfig';
 
@@ -118,6 +118,19 @@ const SignUp = () => {
                             <FontAwesomeIcon icon={faEnvelope} />
                           </InputGroup.Text>
                           <Form.Control required type="email" id="correoElectronico" name="correoElectronico" placeholder="example@company.com" autoComplete='off' />
+                        </InputGroup>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group id="telefono" className="mb-4">
+                        <Form.Label>Teléfono</Form.Label>
+                        <InputGroup>
+                          <InputGroup.Text>
+                            <FontAwesomeIcon icon={faPhone} />
+                          </InputGroup.Text>
+                          <Form.Control required type="number" id="telefono" name="telefono" placeholder="123456789" autoComplete='off' />
                         </InputGroup>
                       </Form.Group>
                     </Col>
