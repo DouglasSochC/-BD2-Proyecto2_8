@@ -208,13 +208,14 @@ function Libro() {
                     placeholder="Titulo"
                     autoComplete='off'
                     autoFocus
+                    required
                   />
                 </Form.Group>
               </Col>
               <Col md={6} className="mb-3">
                 <Form.Group className="mb-3">
                   <Form.Label htmlFor="autor">Autor</Form.Label>
-                  <Select id="autor" name="autor" options={autores} placeholder="Autor" />
+                  <Select id="autor" name="autor" options={autores} required placeholder="Autor" />
                 </Form.Group>
               </Col>
             </Row>
@@ -230,6 +231,7 @@ function Libro() {
                     rows={3}
                     placeholder="Descripcion"
                     autoComplete='off'
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -239,7 +241,7 @@ function Libro() {
               <Col md={6} className="mb-3">
                 <Form.Group className="mb-3">
                   <Form.Label htmlFor="genero">Genero</Form.Label>
-                  <Select id="genero" name="genero" options={generos} placeholder="Genero Literario" />
+                  <Select id="genero" name="genero" options={generos} required placeholder="Genero Literario" />
                 </Form.Group>
               </Col>
               <Col md={6} className="mb-3">
@@ -249,6 +251,7 @@ function Libro() {
                     id="fechaPublicacion"
                     name="fechaPublicacion"
                     type="date"
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -264,6 +267,7 @@ function Libro() {
                     type="number"
                     placeholder="Cantidad Disponible"
                     autoComplete='off'
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -277,6 +281,7 @@ function Libro() {
                     placeholder="Precio"
                     autoComplete='off'
                     step="0.01"
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -290,6 +295,7 @@ function Libro() {
                     type="file"
                     id="imagen"
                     name="imagen"
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -326,6 +332,7 @@ function Libro() {
                     autoComplete='off'
                     defaultValue={libro.titulo ? libro.titulo : ''}
                     autoFocus
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -338,6 +345,7 @@ function Libro() {
                     options={autores}
                     placeholder="Autor"
                     defaultValue={libro.autor ? { label: libro.autor.nombre, value: libro.autor._id } : null}
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -355,6 +363,7 @@ function Libro() {
                     placeholder="Descripcion"
                     autoComplete='off'
                     defaultValue={libro.descripcion ? libro.descripcion : ''}
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -370,6 +379,7 @@ function Libro() {
                     options={generos}
                     placeholder="Genero Literario"
                     defaultValue={libro.genero ? { label: libro.genero, value: libro.genero } : null}
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -381,6 +391,7 @@ function Libro() {
                     name="fechaPublicacion"
                     type="date"
                     defaultValue={libro.fechaPublicacion ? libro.fechaPublicacion : ''}
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -397,6 +408,7 @@ function Libro() {
                     placeholder="Cantidad Disponible"
                     autoComplete='off'
                     defaultValue={libro.cantidadDisponible ? libro.cantidadDisponible : ''}
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -411,6 +423,7 @@ function Libro() {
                     autoComplete='off'
                     step="0.01"
                     defaultValue={libro.precio ? libro.precio : ''}
+                    required
                   />
                 </Form.Group>
               </Col>
@@ -424,6 +437,7 @@ function Libro() {
                     type="file"
                     id="imagen"
                     name="imagen"
+                    required
                   />
                 </Form.Group>
               </Col>
