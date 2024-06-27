@@ -130,7 +130,6 @@ class LibrosController {
       const { usuario, puntuacion, comentario } = req.body;
 
       const libro = await Libro.findById(id);
-      console.log("libro:", libro)
       if (!libro) {
         return res.status(404).json({ message: "Libro no encontrado" });
       }

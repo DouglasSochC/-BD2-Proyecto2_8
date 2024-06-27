@@ -1,7 +1,8 @@
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, InputGroup, Dropdown } from 'react-bootstrap';
+import { handleAxios, handleAxiosMultipart, handleAxiosError, handleAxiosMsg } from '@/helpers/axiosConfig';
 
 const products = [
   { id: 1, title: "Libro 1", description: "Product Description", price: 22.2 },
@@ -10,6 +11,23 @@ const products = [
 ];
 
 const Catalogo = () => {
+  const [items, setItems] = useState([]);
+  // Función para obtener la lista de libros
+  const obtenerLibros = async () => {
+    try {
+      const response = await handleAxios().get('/libro');
+      const data = response.data;
+      setItems(data);
+      console.log("data: ", data);
+    } catch (error) {
+      handleAxiosError(error);
+    }
+  };
+
+  useEffect(() => {
+    obtenerLibros();
+  }, []);
+
   return (
     <Container>
       <h1 className="text-center my-4">Catalogo</h1>
