@@ -5,7 +5,10 @@ class UsuariosController {
   // Registrar un nuevo usuario
   async register(req, res) {
     try {
-      const nuevoUsuario = await Usuario.create(req.body);
+      // Encriptar la contraseña antes de crear el usuario
+      const hashedPassword = await bcrypt.hash(req.body.contrasena, 12);
+      const nuevoUsuario = await Usuario.create({ ...req.body, contrasena: hashedPassword });
+
       res.status(201).json({
         status: 'success',
         data: {

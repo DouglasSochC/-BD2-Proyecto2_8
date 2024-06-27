@@ -28,8 +28,8 @@ const pedidoSchema = new mongoose.Schema({
   },
   estado: {
     type: String,
-    enum: ['Pendiente', 'Completado', 'Cancelado'],
-    default: 'Pendiente'
+    enum: ['En carrito', 'Checkout', 'Completado', 'Cancelado'],
+    default: 'En carrito'
   }
 }, {
   timestamps: true

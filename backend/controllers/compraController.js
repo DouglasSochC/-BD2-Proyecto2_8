@@ -8,10 +8,9 @@ class CompraController {
     try {
       const { pedidoId, direccionEnvio, metodoPago } = req.body;
 
-      // Verificar que el pedido existe y está pendiente
       const pedido = await Pedido.findById(pedidoId);
-      if (!pedido || pedido.estado !== 'Pendiente') {
-        return res.status(400).json({ status: 'fail', message: 'Pedido no válido' });
+      if (!pedido || pedido.estado !== 'Checkout') {
+        return res.status(400).json({ status: 'fail', message: 'Pedido no válido para compra' });
       }
 
       // Verificar stock y actualizar
@@ -23,23 +22,21 @@ class CompraController {
         await Libro.findByIdAndUpdate(item.libro, { $inc: { stock: -item.cantidad } });
       }
 
-      // Crear la compra
       const nuevaCompra = await Compra.create({
         pedido: pedidoId,
         usuario: pedido.usuario,
         total: pedido.total,
+        estado: 'En proceso',
         direccionEnvio,
         metodoPago
       });
 
-      // Actualizar el estado del pedido
-      await Pedido.findByIdAndUpdate(pedidoId, { estado: 'Completado' });
+      pedido.estado = 'Completado';
+      await pedido.save();
 
       res.status(201).json({
         status: 'success',
-        data: {
-          compra: nuevaCompra
-        }
+        data: { compra: nuevaCompra }
       });
     } catch (error) {
       res.status(400).json({
@@ -49,60 +46,71 @@ class CompraController {
     }
   }
 
-  // Obtener todas las compras (para administradores)
-  async obtenerCompras(req, res) {
+  // Confirmar envío (para administradores)
+  async confirmarEnvio(req, res) {
     try {
-      const compras = await Compra.find().populate('usuario', 'nombre').populate('pedido');
-      res.status(200).json({
-        status: 'success',
-        results: compras.length,
-        data: {
-          compras
-        }
-      });
-    } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
-      });
-    }
-  }
+      const { compraId } = req.params;
 
-  // Obtener compras de un usuario
-  async obtenerComprasUsuario(req, res) {
-    try {
-      const compras = await Compra.find({ usuario: req.params.userId }).populate('pedido');
-      res.status(200).json({
-        status: 'success',
-        results: compras.length,
-        data: {
-          compras
-        }
-      });
-    } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
-      });
-    }
-  }
+      const compra = await Compra.findByIdAndUpdate(compraId,
+        { estado: 'Enviado' },
+        { new: true }
+      );
 
-  // Actualizar estado de la compra
-  async actualizarEstadoCompra(req, res) {
-    try {
-      const { estado } = req.body;
-      const compra = await Compra.findByIdAndUpdate(req.params.id, { estado }, { new: true });
       if (!compra) {
-        return res.status(404).json({
-          status: 'fail',
-          message: 'Compra no encontrada'
-        });
+        return res.status(404).json({ status: 'fail', message: 'Compra no encontrada' });
       }
+
       res.status(200).json({
         status: 'success',
-        data: {
-          compra
-        }
+        data: { compra }
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
+      });
+    }
+  }
+
+  // Confirmar entrega (para usuarios)
+  async confirmarEntrega(req, res) {
+    try {
+      const { compraId } = req.params;
+
+      const compra = await Compra.findByIdAndUpdate(compraId,
+        { estado: 'Entregado', entregaConfirmada: true },
+        { new: true }
+      );
+
+      if (!compra) {
+        return res.status(404).json({ status: 'fail', message: 'Compra no encontrada' });
+      }
+
+      res.status(200).json({
+        status: 'success',
+        data: { compra }
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
+      });
+    }
+  }
+
+  // Obtener compra por ID
+  async obtenerCompra(req, res) {
+    try {
+      const { compraId } = req.params;
+
+      const compra = await Compra.findById(compraId).populate('pedido');
+      if (!compra) {
+        return res.status(404).json({ status: 'fail', message: 'Compra no encontrada' });
+      }
+
+      res.status(200).json({
+        status: 'success',
+        data: { compra }
       });
     } catch (error) {
       res.status(400).json({

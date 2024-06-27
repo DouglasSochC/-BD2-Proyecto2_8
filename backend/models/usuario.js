@@ -44,13 +44,20 @@ const usuarioSchema = new mongoose.Schema({
     ref: 'Compra'
   }],
   direccionEnvio: String,
-  metodoPago: String
+  metodoPago: String,
+  saldo: {
+    type: Number,
+    default: 0,
+    min: 0
+  }
 }, {
   timestamps: true
 });
 
 // Método para comparar contraseñas
 usuarioSchema.methods.compararContrasena = async function (candidatePassword, userPassword) {
+  console.log('Contraseña candidata:', candidatePassword);
+  console.log('Contraseña usuario:', userPassword);
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 

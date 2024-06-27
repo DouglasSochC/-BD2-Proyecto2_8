@@ -27,6 +27,10 @@ const compraSchema = new mongoose.Schema({
   metodoPago: {
     type: String,
     required: true
+  },
+  entregaConfirmada: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

@@ -3,19 +3,66 @@ const Libro = require('../models/libro');
 const Usuario = require('../models/usuario');
 
 class PedidoController {
-  // Crear un nuevo pedido
-  async crearPedido(req, res) {
+  // Agregar al carrito (crear o actualizar pedido)
+  async agregarAlCarrito(req, res) {
     try {
-      const { usuario, libros, direccionEnvio, metodoPago } = req.body;
+      const { usuarioId, libroId, cantidad } = req.body;
 
-      // Verificar que el usuario existe
-      const usuarioExiste = await Usuario.findById(usuario);
-      if (!usuarioExiste) {
+      const usuario = await Usuario.findById(usuarioId);
+      if (!usuario) {
         return res.status(400).json({ status: 'fail', message: 'Usuario no encontrado' });
       }
 
-      // Calcular el total y verificar stock
-      let total = 0;
+      const libro = await Libro.findById(libroId);
+      if (!libro) {
+        return res.status(400).json({ status: 'fail', message: 'Libro no encontrado' });
+      }
+
+      if (libro.stock < cantidad) {
+        return res.status(400).json({ status: 'fail', message: 'Stock insuficiente' });
+      }
+
+      let pedido = await Pedido.findOne({ usuario: usuarioId, estado: 'En carrito' });
+
+      if (!pedido) {
+        pedido = new Pedido({ usuario: usuarioId, libros: [], total: 0, estado: 'En carrito' });
+      }
+
+      const itemIndex = pedido.libros.findIndex(item => item.libro.toString() === libroId);
+
+      if (itemIndex > -1) {
+        pedido.libros[itemIndex].cantidad += cantidad;
+      } else {
+        pedido.libros.push({ libro: libroId, cantidad, precio: libro.precio });
+      }
+
+      pedido.total = pedido.libros.reduce((total, item) => total + (item.cantidad * item.precio), 0);
+
+      await pedido.save();
+
+      res.status(200).json({
+        status: 'success',
+        data: { pedido }
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
+      });
+    }
+  }
+
+  // Actualizar carrito
+  async actualizarCarrito(req, res) {
+    try {
+      const { usuarioId, libros } = req.body;
+
+      const pedido = await Pedido.findOne({ usuario: usuarioId, estado: 'En carrito' });
+      if (!pedido) {
+        return res.status(404).json({ status: 'fail', message: 'Carrito no encontrado' });
+      }
+
+      // Verificar stock y actualizar
       for (let item of libros) {
         const libro = await Libro.findById(item.libro);
         if (!libro) {
@@ -25,44 +72,16 @@ class PedidoController {
           return res.status(400).json({ status: 'fail', message: `Stock insuficiente para el libro ${libro.titulo}` });
         }
         item.precio = libro.precio;
-        total += item.precio * item.cantidad;
-
-        // Actualizar stock
-        await Libro.findByIdAndUpdate(item.libro, { $inc: { stock: -item.cantidad } });
       }
 
-      const nuevoPedido = await Pedido.create({
-        usuario,
-        libros,
-        total,
-        direccionEnvio,
-        metodoPago
-      });
+      pedido.libros = libros;
+      pedido.total = libros.reduce((total, item) => total + (item.cantidad * item.precio), 0);
 
-      res.status(201).json({
-        status: 'success',
-        data: {
-          pedido: nuevoPedido
-        }
-      });
-    } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
-      });
-    }
-  }
+      await pedido.save();
 
-  // Obtener todos los pedidos (para administradores)
-  async obtenerPedidos(req, res) {
-    try {
-      const pedidos = await Pedido.find().populate('usuario', 'nombre').populate('libros.libro', 'titulo');
       res.status(200).json({
         status: 'success',
-        results: pedidos.length,
-        data: {
-          pedidos
-        }
+        data: { pedido }
       });
     } catch (error) {
       res.status(400).json({
@@ -72,41 +91,46 @@ class PedidoController {
     }
   }
 
-  // Obtener pedidos de un usuario
-  async obtenerPedidosUsuario(req, res) {
+  // Obtener carrito del usuario
+  async obtenerCarrito(req, res) {
     try {
-      const pedidos = await Pedido.find({ usuario: req.params.userId }).populate('libros.libro', 'titulo');
-      res.status(200).json({
-        status: 'success',
-        results: pedidos.length,
-        data: {
-          pedidos
-        }
-      });
-    } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
-      });
-    }
-  }
+      const { usuarioId } = req.params;
 
-  // Actualizar estado del pedido
-  async actualizarEstadoPedido(req, res) {
-    try {
-      const { estado } = req.body;
-      const pedido = await Pedido.findByIdAndUpdate(req.params.id, { estado }, { new: true });
+      const pedido = await Pedido.findOne({ usuario: usuarioId, estado: 'En carrito' })
+        .populate('libros.libro', 'titulo precio');
+
       if (!pedido) {
-        return res.status(404).json({
-          status: 'fail',
-          message: 'Pedido no encontrado'
-        });
+        return res.status(404).json({ status: 'fail', message: 'Carrito no encontrado' });
       }
+
       res.status(200).json({
         status: 'success',
-        data: {
-          pedido
-        }
+        data: { pedido }
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        message: error.message
+      });
+    }
+  }
+
+  // Proceder al checkout
+  async procederAlCheckout(req, res) {
+    try {
+      const { usuarioId } = req.params;
+
+      const pedido = await Pedido.findOne({ usuario: usuarioId, estado: 'En carrito' });
+      if (!pedido) {
+        return res.status(404).json({ status: 'fail', message: 'Carrito no encontrado' });
+      }
+
+      pedido.estado = 'Checkout';
+      await pedido.save();
+
+      res.status(200).json({
+        status: 'success',
+        data: { pedido }
       });
     } catch (error) {
       res.status(400).json({

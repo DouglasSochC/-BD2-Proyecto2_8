@@ -4,19 +4,131 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/pedido:
+ * components:
+ *   schemas:
+ *     Pedido:
+ *       type: object
+ *       properties:
+ *         usuario:
+ *           type: string
+ *           description: ID del usuario que realiza el pedido
+ *           example: "60d5ecb74e7e882fac742381"
+ *         libros:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               libro:
+ *                 type: string
+ *                 description: ID del libro
+ *                 example: "60d5ecb74e7e882fac742382"
+ *               cantidad:
+ *                 type: number
+ *                 example: 2
+ *               precio:
+ *                 type: number
+ *                 example: 29.99
+ *         total:
+ *           type: number
+ *           example: 59.98
+ *         estado:
+ *           type: string
+ *           enum: ['En carrito', 'Checkout', 'Completado', 'Cancelado']
+ *           example: "En carrito"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *
+ *     Compra:
+ *       type: object
+ *       properties:
+ *         pedido:
+ *           type: string
+ *           description: ID del pedido asociado a la compra
+ *           example: "60d5ecb74e7e882fac742383"
+ *         usuario:
+ *           type: string
+ *           description: ID del usuario que realiza la compra
+ *           example: "60d5ecb74e7e882fac742381"
+ *         total:
+ *           type: number
+ *           example: 59.98
+ *         estado:
+ *           type: string
+ *           enum: ['En proceso', 'Enviado', 'Entregado']
+ *           example: "En proceso"
+ *         direccionEnvio:
+ *           type: string
+ *           example: "Calle Falsa 123, Ciudad Ejemplo"
+ *         metodoPago:
+ *           type: string
+ *           example: "Tarjeta de Crédito"
+ *         entregaConfirmada:
+ *           type: boolean
+ *           example: false
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ */
+
+/**
+ * @swagger
+ * /api/pedido/carrito:
  *   post:
- *     summary: Crear un nuevo pedido
- *     tags: [Pedidos]
+ *     summary: Agregar libro al carrito
+ *     tags: [Pedido]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - usuarioId
+ *               - libroId
+ *               - cantidad
  *             properties:
- *               usuario:
+ *               usuarioId:
  *                 type: string
+ *               libroId:
+ *                 type: string
+ *               cantidad:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Libro agregado al carrito exitosamente
+ *       400:
+ *         description: Error en la solicitud
+ */
+router.post('/carrito', pedidos.agregarAlCarrito);
+
+/**
+ * @swagger
+ * /api/pedido/carrito/{usuarioId}:
+ *   put:
+ *     summary: Actualizar carrito
+ *     tags: [Pedido]
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - libros
+ *             properties:
  *               libros:
  *                 type: array
  *                 items:
@@ -26,82 +138,52 @@ const router = express.Router();
  *                       type: string
  *                     cantidad:
  *                       type: number
- *               direccionEnvio:
- *                 type: string
- *               metodoPago:
- *                 type: string
- *     responses:
- *       201:
- *         description: Pedido creado exitosamente
- *       400:
- *         description: Error al crear el pedido
- */
-router.post('/', pedidos.crearPedido);
-
-/**
- * @swagger
- * /api/pedido:
- *   get:
- *     summary: Obtener todos los pedidos (para administradores)
- *     tags: [Pedidos]
  *     responses:
  *       200:
- *         description: Lista de pedidos obtenida exitosamente
+ *         description: Carrito actualizado exitosamente
  *       400:
- *         description: Error al obtener los pedidos
+ *         description: Error en la solicitud
  */
-router.get('/', pedidos.obtenerPedidos);
+router.put('/carrito/:usuarioId', pedidos.actualizarCarrito);
 
 /**
  * @swagger
- * /api/pedido/usuario/{userId}:
+ * /api/pedido/carrito/{usuarioId}:
  *   get:
- *     summary: Obtener pedidos de un usuario específico
- *     tags: [Pedidos]
+ *     summary: Obtener carrito del usuario
+ *     tags: [Pedido]
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: usuarioId
  *         required: true
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Pedidos del usuario obtenidos exitosamente
- *       400:
- *         description: Error al obtener los pedidos del usuario
- */
-router.get('/usuario/:userId', pedidos.obtenerPedidosUsuario);
-
-/**
- * @swagger
- * /api/pedido/{id}:
- *   patch:
- *     summary: Actualizar el estado de un pedido
- *     tags: [Pedidos]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               estado:
- *                 type: string
- *                 enum: [En proceso, Enviado, Entregado]
- *     responses:
- *       200:
- *         description: Estado del pedido actualizado exitosamente
- *       400:
- *         description: Error al actualizar el estado del pedido
+ *         description: Carrito obtenido exitosamente
  *       404:
- *         description: Pedido no encontrado
+ *         description: Carrito no encontrado
  */
-router.patch('/:id', pedidos.actualizarEstadoPedido);
+router.get('/carrito/:usuarioId', pedidos.obtenerCarrito);
+
+/**
+ * @swagger
+ * /api/pedido/checkout/{usuarioId}:
+ *   post:
+ *     summary: Proceder al checkout
+ *     tags: [Pedido]
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Checkout realizado exitosamente
+ *       404:
+ *         description: Carrito no encontrado
+ */
+router.post('/checkout/:usuarioId', pedidos.procederAlCheckout);
 
 module.exports = router;
