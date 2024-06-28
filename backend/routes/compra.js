@@ -1,47 +1,65 @@
 const express = require('express');
-const compras = require('../controllers/compraController');
 const router = express.Router();
+const compraController = require('../controllers/compraController');
 
 /**
  * @swagger
- * /api/pedido/carrito:
- *   post:
- *     summary: Agregar libro al carrito
- *     tags: [Pedido]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
+ * components:
+ *   schemas:
+ *     Compra:
+ *       type: object
+ *       required:
+ *         - usuario
+ *         - libros
+ *         - total
+ *         - direccionEnvio
+ *         - metodoPago
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ID auto-generado de la compra
+ *         usuario:
+ *           type: string
+ *           description: ID del usuario que realiza la compra
+ *         libros:
+ *           type: array
+ *           items:
  *             type: object
- *             required:
- *               - usuarioId
- *               - libroId
- *               - cantidad
  *             properties:
- *               usuarioId:
+ *               libro:
  *                 type: string
- *               libroId:
- *                 type: string
+ *                 description: ID del libro
  *               cantidad:
  *                 type: number
- *     responses:
- *       200:
- *         description: Libro agregado al carrito exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Pedido'
- *       400:
- *         description: Error en la solicitud
+ *                 description: Cantidad de libros comprados
+ *               precio:
+ *                 type: number
+ *                 description: Precio unitario del libro
+ *         total:
+ *           type: number
+ *           description: Total de la compra
+ *         estado:
+ *           type: string
+ *           enum: [En proceso, Enviado, Entregado]
+ *           description: Estado actual de la compra
+ *         direccionEnvio:
+ *           type: string
+ *           description: Dirección de envío
+ *         metodoPago:
+ *           type: string
+ *           description: Método de pago utilizado
+ *         fechaCompra:
+ *           type: string
+ *           format: date-time
+ *           description: Fecha y hora de la compra
  */
 
 /**
  * @swagger
- * /api/compra:
+ * /api/compras:
  *   post:
- *     summary: Crear una nueva compra
- *     tags: [Compra]
+ *     summary: Realizar una nueva compra
+ *     tags: [Compras]
  *     requestBody:
  *       required: true
  *       content:
@@ -49,82 +67,124 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             required:
- *               - pedidoId
+ *               - usuario
+ *               - libros
  *               - direccionEnvio
  *               - metodoPago
  *             properties:
- *               pedidoId:
+ *               usuario:
  *                 type: string
+ *               libros:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     libro:
+ *                       type: string
+ *                     cantidad:
+ *                       type: number
  *               direccionEnvio:
  *                 type: string
  *               metodoPago:
  *                 type: string
  *     responses:
  *       201:
- *         description: Compra creada exitosamente
+ *         description: Compra realizada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Compra'
  *       400:
- *         description: Error en la solicitud
+ *         description: Datos inválidos o stock insuficiente
+ *       500:
+ *         description: Error del servidor
  */
-router.post('/compra', compras.crearCompra);
+router.post('/', compraController.crearCompra);
 
 /**
  * @swagger
- * /api/compra/{compraId}/confirmar-envio:
- *   put:
- *     summary: Confirmar envío de una compra (para administradores)
- *     tags: [Compra]
- *     parameters:
- *       - in: path
- *         name: compraId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Envío confirmado exitosamente
- *       404:
- *         description: Compra no encontrada
- */
-router.put('/compra/:compraId/confirmar-envio', compras.confirmarEnvio);
-
-/**
- * @swagger
- * /api/compra/{compraId}/confirmar-entrega:
- *   put:
- *     summary: Confirmar entrega de una compra (para usuarios)
- *     tags: [Compra]
- *     parameters:
- *       - in: path
- *         name: compraId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Entrega confirmada exitosamente
- *       404:
- *         description: Compra no encontrada
- */
-router.put('/compra/:compraId/confirmar-entrega', compras.confirmarEntrega);
-
-/**
- * @swagger
- * /api/compra/{compraId}:
+ * /api/compras/usuario/{usuarioId}:
  *   get:
- *     summary: Obtener detalles de una compra
- *     tags: [Compra]
+ *     summary: Obtener compras de un usuario específico
+ *     tags: [Compras]
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del usuario
+ *     responses:
+ *       200:
+ *         description: Lista de compras del usuario
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Compra'
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/usuario/:usuarioId', compraController.obtenerComprasUsuario);
+
+/**
+ * @swagger
+ * /api/compras/{compraId}:
+ *   patch:
+ *     summary: Actualizar el estado de una compra
+ *     tags: [Compras]
  *     parameters:
  *       - in: path
  *         name: compraId
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID de la compra
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - estado
+ *             properties:
+ *               estado:
+ *                 type: string
+ *                 enum: [En proceso, Enviado, Entregado]
  *     responses:
  *       200:
- *         description: Detalles de la compra obtenidos exitosamente
+ *         description: Estado de la compra actualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Compra'
  *       404:
  *         description: Compra no encontrada
+ *       500:
+ *         description: Error del servidor
  */
-router.get('/compra/:compraId', compras.obtenerCompra);
+router.patch('/:compraId', compraController.actualizarEstadoCompra);
+
+/**
+ * @swagger
+ * /api/compras:
+ *   get:
+ *     summary: Obtener todas las compras
+ *     tags: [Compras]
+ *     responses:
+ *       200:
+ *         description: Lista de todas las compras
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Compra'
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/', compraController.obtenerTodasLasCompras);
 
 module.exports = router;
