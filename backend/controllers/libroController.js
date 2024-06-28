@@ -83,7 +83,7 @@ class LibrosController {
       const { titulo, autor, descripcion, precio, stock, genero, fechaPublicacion, cantidadDisponible } = req.body;
 
       // Validar el ID del autor
-      if (autor && !mongoose.Types.ObjectId.isValid(autor)) {
+      if (!autor) {
         return res.status(400).json({
           status: 'fail',
           message: 'ID de autor no válido'
@@ -174,8 +174,6 @@ class LibrosController {
       });
     }
   }
-
-
 
   // Eliminar un libro por ID
   async delete(req, res) {
