@@ -1,7 +1,7 @@
 'use client'
 
 // React
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 // Bootstrap
 import { Container, Row, Col, Card, Button, Form, InputGroup, ListGroup } from 'react-bootstrap';
@@ -13,9 +13,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 // Helpers
 import { crearCarrito, agregarProductoCarrito, obtenerProductosCarrito } from '@/helpers/shoppingCart';
+import { MyContext } from '@/helpers/changeShoppingCart';
 
 const LibroCatalogo = () => {
 
+  const { actualizarShoppingCart, setActualizarShoppingCart } = useContext(MyContext);
   const router = useRouter();
   const [tipoFiltro, setTipoFiltro] = useState("titulo");
   const [search, setSearch] = useState("");
@@ -23,7 +25,6 @@ const LibroCatalogo = () => {
   const [currentItems, setCurrentItems] = useState([]);
   const [pageCount, setPageCount] = useState(0);
   const itemsPerPage = 3;
-
 
   const handlePageClick = (data) => {
     setCurrentPage(data.selected);
@@ -43,6 +44,7 @@ const LibroCatalogo = () => {
 
   const handleAgregarProducto = (producto) => {
     agregarProductoCarrito(producto);
+    setActualizarShoppingCart(actualizarShoppingCart + 1);
   }
 
   const handleObtenerLocalStorage = () => {

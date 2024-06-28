@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
@@ -6,12 +6,14 @@ import { Row, Col, Nav, Image, Navbar, Dropdown, Container, ListGroup } from 're
 import { useRouter } from 'next/navigation';
 import { cerrarSesion, obtenerDatosUsuario } from "@/helpers/session";
 import { obtenerProductosCarrito } from "@/helpers/shoppingCart";
+import { MyContext } from "@/helpers/changeShoppingCart";
 
 export default function NavbarComponent() {
 
   const router = useRouter();
   const [usuario, setUsuario] = useState(null);
   const [notifications, setNotifications] = useState(null);
+  const { actualizarShoppingCart } = useContext(MyContext);
 
   const handleCerrarSesion = () => {
     cerrarSesion();
@@ -49,6 +51,10 @@ export default function NavbarComponent() {
     setNotifications(obtenerProductosCarrito());
   }, []);
 
+  useEffect(() => {
+    setNotifications(obtenerProductosCarrito());
+  }, [actualizarShoppingCart]);
+
   return (
     <Navbar variant="dark" expanded className="ps-0 pe-2 pb-0">
       <Container fluid className="px-0">
@@ -71,7 +77,7 @@ export default function NavbarComponent() {
                     </Nav.Link>
                     {notifications && notifications.slice(0, 2).map(n => <Notification key={`notification-${n.id}`} {...n} />)}
                     <Dropdown.Item className="text-center text-primary fw-bold py-3">
-                      Ver detalle {notifications.length > 2 && `- (${notifications.length - 2} productos más)`}
+                      Ver detalle {notifications && notifications.length > 2 && `- (${notifications.length - 2} productos más)`}
                     </Dropdown.Item>
                   </ListGroup>
                 </Dropdown.Menu>
