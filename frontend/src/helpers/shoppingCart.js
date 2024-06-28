@@ -34,11 +34,34 @@ export const agregarProductoCarrito = (producto) => {
 export const sumarProductoCarrito = (id_libro, cantidad) => {
   const carrito = JSON.parse(localStorage.getItem("cp" + usuario._id));
   const index = carrito.findIndex((p) => p.id_libro === id_libro);
+
+  // Se verifica si la suma del producto da 0
+  if (carrito[index].cantidad + cantidad <= 0) {
+    return;
+  }
   carrito[index].cantidad += cantidad;
   localStorage.setItem("cp" + usuario._id, JSON.stringify(carrito));
 };
 
+// Eliminar un producto del carrito
+export const eliminarProductoCarrito = (id_libro) => {
+  const carrito = JSON.parse(localStorage.getItem("cp" + usuario._id));
+  const index = carrito.findIndex((p) => p.id_libro === id_libro);
+  carrito.splice(index, 1);
+  localStorage.setItem("cp" + usuario._id, JSON.stringify(carrito));
+};
+
+// Eliminar el carrito
+export const eliminarCarrito = () => {
+  localStorage.removeItem("cp" + usuario._id);
+};
+
 // Obtener todos los productos
 export const obtenerProductosCarrito = () => {
+  // Verifica si el carrito ya existe
+  if (!localStorage.getItem("cp" + usuario._id)) {
+    return [];
+  }
+
   return JSON.parse(localStorage.getItem("cp" + usuario._id));
 };

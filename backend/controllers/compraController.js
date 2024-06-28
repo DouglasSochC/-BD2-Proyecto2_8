@@ -10,13 +10,14 @@ class CompraController {
 
       // Calcular el total y verificar el stock
       let total = 0;
-      for (let item of libros) {
+      const librosArray = JSON.parse(libros);
+      for (let item of librosArray) {
         const libro = await Libro.findById(item.libro);
         if (!libro) {
-          return res.status(404).json({ mensaje: 'Libro no encontrado' });
+          return res.status(404).json({ message: 'Libro no encontrado' });
         }
         if (libro.stock < item.cantidad) {
-          return res.status(400).json({ mensaje: 'Stock insuficiente' });
+          return res.status(400).json({ message: 'Stock insuficiente' });
         }
         total += libro.precio * item.cantidad;
 
@@ -28,7 +29,7 @@ class CompraController {
       // Crear la compra
       const nuevaCompra = new Compra({
         usuario,
-        libros,
+        libros: librosArray,
         total,
         direccionEnvio,
         metodoPago

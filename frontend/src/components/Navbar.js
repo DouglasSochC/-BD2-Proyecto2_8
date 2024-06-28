@@ -75,7 +75,7 @@ export default function NavbarComponent() {
                     <Nav.Link href="#" className="text-center text-primary fw-bold border-bottom border-light py-3">
                       Carrito
                     </Nav.Link>
-                    {notifications && notifications.slice(0, 2).map(n => <Notification key={`notification-${n.id}`} {...n} />)}
+                    {notifications && notifications.slice(0, 2).map(n => <Notification key={`notification-${n.id_libro}`} {...n} />)}
                     <Dropdown.Item className="text-center text-primary fw-bold py-3">
                       Ver detalle {notifications && notifications.length > 2 && `- (${notifications.length - 2} productos más)`}
                     </Dropdown.Item>

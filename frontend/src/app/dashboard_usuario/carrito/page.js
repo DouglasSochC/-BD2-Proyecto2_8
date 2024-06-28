@@ -1,152 +1,160 @@
 'use client'
-// components/Carrito.js
+
+// React
 import React, { useState, useEffect } from 'react';
-import { handleAxios, handleAxiosMultipart, handleAxiosError, handleAxiosMsg } from '@/helpers/axiosConfig';
+// Boostrap
+import { Row, Col, Button, Form, Card } from 'react-bootstrap';
+// Axios
+import { handleAxios, handleAxiosError, handleAxiosMsg } from '@/helpers/axiosConfig';
+// FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faMinus, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+// Helpers
+import { obtenerDatosUsuario } from "@/helpers/session";
+import { obtenerProductosCarrito, eliminarProductoCarrito, eliminarCarrito, sumarProductoCarrito } from "@/helpers/shoppingCart";
+// DataTable
+import DataTable from 'react-data-table-component';
 
 const Carrito = () => {
-  const [items, setItems] = useState([]);
-  const [direccionEnvio, setDireccionEnvio] = useState('123 Calle Falsa, Springfield');
-  const [metodoPago, setMetodoPago] = useState('Efectivo');
-  const [detallesPago, setDetallesPago] = useState('');
-  const [total, setTotal] = useState(0.00); // Estado para el total
-  const usuarioId = "667cbe44696b207f66f38e04"; // TODO: cambiar por el usuario real
 
-  // Función para obtener el pedido del carrito
-  const obtenerPedido = async () => {
-    try {
-      const response = await handleAxios().get(`/pedido/carrito/${usuarioId}`);
-      const data = response.data.data;
-      console.log("data: ", data);
-      setItems(data.pedido.libros); // Ajusta según la estructura real de tus datos
-      setTotal(data.pedido.total || 0.00); // Ajusta según los datos reales que regresen y establece 0.00 si no hay valor
-      setDireccionEnvio(data.direccionEnvio); // Ajusta según los datos reales que regresen
-    } catch (error) {
-      handleAxiosError(error);
-    }
-  };
+  const usuario = obtenerDatosUsuario();
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    obtenerPedido();
+    setItems(obtenerProductosCarrito());
   }, []);
 
-  // Manejar la eliminación de un producto
-  const handleEliminar = (id) => {
-    const nuevosItems = items.filter(item => item.id !== id);
-    setItems(nuevosItems);
-  };
+  // Realizar orden
+  const handleRealizarOrden = async (e) => {
 
-  // Manejar el cambio de método de pago
-  const handleMetodoPagoChange = (e) => {
-    setMetodoPago(e.target.value);
-    setDetallesPago(''); // Restablecer los detalles del pago
-  };
-
-  // Manejar el envío del formulario de checkout
-  const handleCheckout = async (e) => {
     e.preventDefault();
-    const pedido = {
-      items,
-      total,
-      direccionEnvio,
-      metodoPago,
-      detallesPago,
-      estado: 'En proceso',
-      fechaPedido: new Date()
-    };
-    console.log('Pedido realizado:', pedido);
 
     try {
-      const response = await handleAxios().post('/api/pedido', pedido);
-      console.log('Pedido realizado:', response.data);
-      // Redirigir al usuario a una página de confirmación o estado del pedido
+
+      // Se crea un formulario vacio
+      const formData = new FormData();
+      formData.set('usuario', usuario._id);
+      formData.set('direccionEnvio', usuario.direccionEnvio);
+      formData.set('metodoPago', usuario.metodoPago);
+
+      // Se formatea los datos de los libros a una nueva variable
+      let librosAux = [];
+      for (let item of items) {
+        librosAux.push({ libro: item.id_libro, cantidad: item.cantidad, precio: item.precio });
+      }
+      formData.set('libros', JSON.stringify(librosAux));
+
+      // Se envia la peticion al servidor y se obtiene el mensaje
+      await handleAxios().post('/compra', formData);
+      handleAxiosMsg("Autor creado correctamente").then(() => {
+        window.location.reload();
+        eliminarCarrito();
+      });
+
     } catch (error) {
       handleAxiosError(error);
     }
-  };
+  }
+
+  // Handle para eliminar un producto del carrito
+  const handleEliminarProductoCarrito = (id_libro) => {
+    eliminarProductoCarrito(id_libro);
+    setItems(obtenerProductosCarrito());
+  }
+
+  // Agregar una unidad de un producto
+  const handleModificarCantidad = (id_libro, cantidad) => {
+    sumarProductoCarrito(id_libro, cantidad);
+    setItems(obtenerProductosCarrito());
+  }
+
+  const columnas = [
+    {
+      name: 'Nombre',
+      selector: row => row.nombre_libro,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'Cantidad',
+      selector: row => row.cantidad,
+      wrap: true,
+    },
+    {
+      name: 'Precio',
+      selector: row => row.precio,
+      wrap: true,
+    },
+    {
+      name: 'Total',
+      selector: row => (row.cantidad * row.precio),
+      wrap: true,
+    },
+    {
+      name: 'Acciones',
+      cell: row => (
+        <>
+          <Button variant="danger" onClick={() => handleEliminarProductoCarrito(row.id_libro)}>
+            <FontAwesomeIcon icon={faTrashCan} />
+          </Button>
+          <Button variant="success" onClick={() => handleModificarCantidad(row.id_libro, -1)}>
+            <FontAwesomeIcon icon={faMinus} />
+          </Button>
+          <Button variant="success" onClick={() => handleModificarCantidad(row.id_libro, 1)}>
+            <FontAwesomeIcon icon={faPlus} />
+          </Button>
+        </>
+      )
+    },
+  ];
 
   return (
-    <div className="container">
-      <h1>Carrito de Compras</h1>
-      {items.length === 0 ? (
-        <p>El carrito está vacío.</p>
-      ) : (
-        <ul className="list-group mb-3">
-          {items.map(item => (
-            <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <h6 className="my-0">{item.name}</h6>
-                <small className="text-muted">Cantidad: {item.precio}</small>
-              </div>
-              <div className="d-flex align-items-center">
-                <span className="text-muted me-3">${(item.cantidad * item.precio).toFixed(2)}</span>
-                <button className="btn btn-danger btn-sm" onClick={() => handleEliminar(item._id)}>
-                  <FontAwesomeIcon icon={faTrashAlt} />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-      <h4>Total: ${total.toFixed(2)}</h4>
-      <form onSubmit={handleCheckout}>
-        <div className="mb-3">
-          <label htmlFor="direccionEnvio" className="form-label">Dirección de Envío</label>
-          <input
-            type="text"
-            className="form-control"
-            id="direccionEnvio"
-            value={direccionEnvio}
-            onChange={(e) => setDireccionEnvio(e.target.value)}
-            placeholder="Ingresa tu dirección de envío"
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="metodoPago" className="form-label">Método de Pago</label>
-          <select
-            className="form-select"
-            id="metodoPago"
-            value={metodoPago}
-            onChange={handleMetodoPagoChange}
-            required
-          >
-            <option value="Efectivo">Efectivo</option>
-            <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
-          </select>
-        </div>
-        {metodoPago === 'Tarjeta de Crédito' && (
-          <div className="mb-3">
-            <label htmlFor="detallesPago" className="form-label">Número de Tarjeta</label>
-            <input
-              type="text"
-              className="form-control"
-              id="detallesPago"
-              value={detallesPago}
-              onChange={(e) => setDetallesPago(e.target.value)}
-              placeholder="Ingresa el número de tu tarjeta de crédito"
-              required
+    <Card border="light" className="bg-white shadow-sm mb-4">
+      <Card.Body>
+        <h5 className="mb-4">Carrito de compras</h5>
+        <Form onSubmit={handleRealizarOrden}>
+          <Row>
+            <Col md={6} className="mb-3">
+              <Form.Group id="firstName">
+                <Form.Label>Correo Electronico</Form.Label>
+                <Form.Control required type="email" id="correoElectronico" name="correoElectronico" placeholder="example@company.com" autoComplete='off' defaultValue={usuario ? usuario.correoElectronico : ''} disabled />
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mb-3">
+              <Form.Group id="firstName">
+                <Form.Label>Nombre completo</Form.Label>
+                <Form.Control autoFocus required id="nombre" name="nombre" type="text" placeholder="Juan" autoComplete='off' defaultValue={usuario ? usuario.nombre + usuario.apellido : ''} disabled />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6} className="mb-3">
+              <Form.Group id="gender">
+                <Form.Label>Direccion de Envio</Form.Label>
+                <Form.Control required id="direccionEnvio" name="direccionEnvio" type="text" placeholder="Calle Falsa 123" autoComplete='off' defaultValue={usuario ? usuario.direccionEnvio : ''} disabled />
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mb-3">
+              <Form.Group id="emal">
+                <Form.Label>Metodo de Pago</Form.Label>
+                <Form.Control required id="metodoPago" name="metodoPago" type="text" placeholder="Efectivo" autoComplete='off' defaultValue={usuario ? usuario.metodoPago : ''} disabled />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <DataTable
+              title="Autores"
+              columns={columnas}
+              data={items}
+              pagination
             />
+          </Row>
+          <div className="mt-3">
+            <Button variant="primary" type="submit">Realizar orden</Button>
           </div>
-        )}
-        {metodoPago === 'Efectivo' && (
-          <div className="mb-3">
-            <label htmlFor="detallesPago" className="form-label">Monto en Efectivo</label>
-            <input
-              type="number"
-              className="form-control"
-              id="detallesPago"
-              value={detallesPago}
-              onChange={(e) => setDetallesPago(e.target.value)}
-              placeholder="Ingresa el monto a pagar en efectivo"
-              required
-            />
-          </div>
-        )}
-        <button type="submit" className="btn btn-primary">Confirmar Pedido</button>
-      </form>
-    </div>
+        </Form>
+      </Card.Body>
+    </Card>
   );
 };
 
