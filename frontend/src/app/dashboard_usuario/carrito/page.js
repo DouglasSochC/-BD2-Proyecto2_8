@@ -123,7 +123,7 @@ const Carrito = () => {
             <Col md={6} className="mb-3">
               <Form.Group id="firstName">
                 <Form.Label>Nombre completo</Form.Label>
-                <Form.Control autoFocus required id="nombre" name="nombre" type="text" placeholder="Juan" autoComplete='off' defaultValue={usuario ? usuario.nombre + usuario.apellido : ''} disabled />
+                <Form.Control autoFocus required id="nombre" name="nombre" type="text" placeholder="Juan" autoComplete='off' defaultValue={usuario ? usuario.nombre + ' ' + usuario.apellido : ''} disabled />
               </Form.Group>
             </Col>
           </Row>

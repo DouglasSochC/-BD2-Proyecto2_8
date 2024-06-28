@@ -1,16 +1,20 @@
 const mongoose = require('mongoose');
 const Usuario = require('./models/usuario'); // Importa el modelo de Usuario
 const dotenv = require('dotenv');
+const bcrypt = require('bcryptjs');
 
 // Cargar variables de entorno
 dotenv.config();
 
-// Conectar a la base de datos
+// Conectar a la base de datos y eliminar todas las colecciones
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://carlos5231fac:LwlgLXjsJyTq93LD@cluster0.hzv36uj.mongodb.net/BookStore?retryWrites=true&w=majority&appName=Cluster0");
     console.log('MongoDB connected successfully');
 
+    // Eliminar todas las colecciones
+    await mongoose.connection.dropDatabase();
+    console.log('Base de datos eliminada exitosamente.');
 
     // Verificar si ya existe un administrador
     const adminExistente = await Usuario.findOne({ rol: 'Administrador' });
@@ -19,13 +23,16 @@ const connectDB = async () => {
       return;
     }
 
-    // Crear un nuevo usuario administrador
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash('adminpassword', 12); // Hashea la contraseña 'adminpassword'
+
+    // Crear un nuevo usuario administrador con la contraseña hasheada
     const nuevoAdmin = new Usuario({
       nombre: 'Admin',
       apellido: 'User',
       edad: 30,
       correoElectronico: 'admin@example.com',
-      contrasena: 'adminpassword', // Asegúrate de cambiar esto por una contraseña segura
+      contrasena: hashedPassword,
       rol: 'Administrador',
       saldo: 30000
     });

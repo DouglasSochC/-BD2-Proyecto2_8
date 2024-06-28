@@ -47,10 +47,7 @@ class LibrosController {
       let filtro = {};
       if (titulo) filtro.titulo = { $regex: titulo, $options: "i" };
       if (autor) {
-        const autorEncontrado = await Autor.findOne({
-          nombre: { $regex: autor, $options: "i" },
-        });
-        if (autorEncontrado) filtro.autor = autorEncontrado._id;
+        filtro.autor = autor;
       }
       if (genero) filtro.genero = genero;
       if (precioMin || precioMax) {
