@@ -11,6 +11,8 @@ import { handleAxios, handleAxiosError } from '@/helpers/axiosConfig';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
+// Helpers
+import { crearCarrito, agregarProductoCarrito, obtenerProductosCarrito } from '@/helpers/shoppingCart';
 
 const LibroCatalogo = () => {
 
@@ -22,6 +24,7 @@ const LibroCatalogo = () => {
   const [pageCount, setPageCount] = useState(0);
   const itemsPerPage = 3;
 
+
   const handlePageClick = (data) => {
     setCurrentPage(data.selected);
   };
@@ -32,6 +35,18 @@ const LibroCatalogo = () => {
 
   const handleVerLibro = (id) => {
     router.push("/dashboard_usuario/libro/?id=" + id);
+  }
+
+  const handleCrearLocalStorage = () => {
+    crearCarrito();
+  }
+
+  const handleAgregarProducto = (producto) => {
+    agregarProductoCarrito(producto);
+  }
+
+  const handleObtenerLocalStorage = () => {
+    console.log(obtenerProductosCarrito());
   }
 
   useEffect(() => {
@@ -53,6 +68,8 @@ const LibroCatalogo = () => {
 
   return (
     <Container>
+      <Button onClick={handleCrearLocalStorage}>Crear Local Storage</Button>
+      <Button onClick={handleObtenerLocalStorage}>Obtener Local Storage</Button>
       <h1 className="text-center my-4">Catalogo de Libros</h1>
       <InputGroup className="mb-3">
         <Form.Control
@@ -97,7 +114,7 @@ const LibroCatalogo = () => {
                     <Card.Title>{libro.titulo}</Card.Title>
                     <Card.Text>{libro.descripcion.slice(0, 100)}...</Card.Text>
                     <Card.Text className="text-danger">${libro.precio.toFixed(2)}</Card.Text>
-                    <Button variant="primary" className="me-2"><FontAwesomeIcon icon={faCartShopping} /></Button>
+                    <Button variant="primary" onClick={() => handleAgregarProducto({ id_libro: libro._id, image: libro.imagen, nombre_libro: libro.titulo, nombre_autor: libro.autor.nombre, cantidad: 1, precio: libro.precio })} className="me-2"><FontAwesomeIcon icon={faCartShopping} /></Button>
                     <Button variant="secondary" onClick={() => handleVerLibro(libro._id)}>Ver</Button>
                   </Card.Body>
                 </Card>
