@@ -6,6 +6,7 @@ import { handleAxios,  handleAxiosError} from '@/helpers/axiosConfig';
 // Bootstrap
 import CompraTable from './compraTable';
 import CompraDialog from './compraDialog';
+import { obtenerDatosUsuario } from '@/helpers/session';
 // Bootstrap
 
 /*const compras1 = [
@@ -32,13 +33,16 @@ import CompraDialog from './compraDialog';
   ]*/
 
 const Historial = () => {
+
+  // Obtencion del usuario
+  const usuario = obtenerDatosUsuario();
     
      // Obtencion de los compras
   const [compras, setCompras] = useState([]);
   const obtenerCompras = async () => {
     try {
-      const response = await handleAxios().get(`/compra/usuario/${usuario}`); //TODO: cambiar endpoint por el usuario http://localhost:5000/api/compra/${compra._id}
-      const data = response.data.data;
+      const response = await handleAxios().get(`/compra/usuario/${usuario._id}`); //TODO: cambiar endpoint por el usuario http://localhost:5000/api/compra/${compra._id}
+      const data = response.data;
   
 
       setCompras(data);
