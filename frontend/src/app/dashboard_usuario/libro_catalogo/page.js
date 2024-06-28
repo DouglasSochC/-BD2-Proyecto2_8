@@ -1,7 +1,7 @@
 'use client'
 
 // React
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 // Bootstrap
 import { Container, Row, Col, Card, Button, Form, InputGroup, ListGroup } from 'react-bootstrap';
@@ -11,9 +11,13 @@ import { handleAxios, handleAxiosError } from '@/helpers/axiosConfig';
 // Font Awesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
+// Helpers
+import { crearCarrito, agregarProductoCarrito, obtenerProductosCarrito } from '@/helpers/shoppingCart';
+import { MyContext } from '@/helpers/changeShoppingCart';
 
 const LibroCatalogo = () => {
 
+  const { actualizarShoppingCart, setActualizarShoppingCart } = useContext(MyContext);
   const router = useRouter();
   const [tipoFiltro, setTipoFiltro] = useState("titulo");
   const [search, setSearch] = useState("");
@@ -32,6 +36,11 @@ const LibroCatalogo = () => {
 
   const handleVerLibro = (id) => {
     router.push("/dashboard_usuario/libro/?id=" + id);
+  }
+
+  const handleAgregarProducto = (producto) => {
+    agregarProductoCarrito(producto);
+    setActualizarShoppingCart(actualizarShoppingCart + 1);
   }
 
   useEffect(() => {
@@ -97,7 +106,7 @@ const LibroCatalogo = () => {
                     <Card.Title>{libro.titulo}</Card.Title>
                     <Card.Text>{libro.descripcion.slice(0, 100)}...</Card.Text>
                     <Card.Text className="text-danger">${libro.precio.toFixed(2)}</Card.Text>
-                    <Button variant="primary" className="me-2"><FontAwesomeIcon icon={faCartShopping} /></Button>
+                    <Button variant="primary" onClick={() => handleAgregarProducto({ id_libro: libro._id, image: libro.imagen, nombre_libro: libro.titulo, nombre_autor: libro.autor.nombre, cantidad: 1, precio: libro.precio })} className="me-2"><FontAwesomeIcon icon={faCartShopping} /></Button>
                     <Button variant="secondary" onClick={() => handleVerLibro(libro._id)}>Ver</Button>
                   </Card.Body>
                 </Card>

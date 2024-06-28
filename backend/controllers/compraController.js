@@ -1,122 +1,81 @@
 const Compra = require('../models/compra');
-const Pedido = require('../models/pedido');
+const Usuario = require('../models/usuario');
 const Libro = require('../models/libro');
 
 class CompraController {
   // Crear una nueva compra
   async crearCompra(req, res) {
     try {
-      const { pedidoId, direccionEnvio, metodoPago } = req.body;
+      const { usuario, libros, direccionEnvio, metodoPago } = req.body;
 
-      const pedido = await Pedido.findById(pedidoId);
-      if (!pedido || pedido.estado !== 'Checkout') {
-        return res.status(400).json({ status: 'fail', message: 'Pedido no válido para compra' });
-      }
-
-      // Verificar stock y actualizar
-      for (let item of pedido.libros) {
+      // Calcular el total y verificar el stock
+      let total = 0;
+      const librosArray = JSON.parse(libros);
+      for (let item of librosArray) {
         const libro = await Libro.findById(item.libro);
-        if (libro.stock < item.cantidad) {
-          return res.status(400).json({ status: 'fail', message: `Stock insuficiente para el libro ${libro.titulo}` });
+        if (!libro) {
+          return res.status(404).json({ message: 'Libro no encontrado' });
         }
-        await Libro.findByIdAndUpdate(item.libro, { $inc: { stock: -item.cantidad } });
+        if (libro.stock < item.cantidad) {
+          return res.status(400).json({ message: 'Stock insuficiente' });
+        }
+        total += libro.precio * item.cantidad;
+
+        // Actualizar el stock del libro
+        libro.stock -= item.cantidad;
+        await libro.save();
       }
 
-      const nuevaCompra = await Compra.create({
-        pedido: pedidoId,
-        usuario: pedido.usuario,
-        total: pedido.total,
-        estado: 'En proceso',
+      // Crear la compra
+      const nuevaCompra = new Compra({
+        usuario,
+        libros: librosArray,
+        total,
         direccionEnvio,
         metodoPago
       });
 
-      pedido.estado = 'Completado';
-      await pedido.save();
+      await nuevaCompra.save();
 
-      res.status(201).json({
-        status: 'success',
-        data: { compra: nuevaCompra }
-      });
+      // Actualizar el usuario con la nueva compra
+      await Usuario.findByIdAndUpdate(usuario, { $push: { compras: nuevaCompra._id } });
+
+      res.status(201).json(nuevaCompra);
     } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
-      });
+      res.status(500).json({ mensaje: 'Error al realizar la compra', error: error.message });
     }
   }
 
-  // Confirmar envío (para administradores)
-  async confirmarEnvio(req, res) {
+  async obtenerComprasUsuario(req, res) {
     try {
-      const { compraId } = req.params;
-
-      const compra = await Compra.findByIdAndUpdate(compraId,
-        { estado: 'Enviado' },
-        { new: true }
-      );
-
-      if (!compra) {
-        return res.status(404).json({ status: 'fail', message: 'Compra no encontrada' });
-      }
-
-      res.status(200).json({
-        status: 'success',
-        data: { compra }
-      });
+      const compras = await Compra.find({ usuario: req.params.usuarioId })
+        .populate('libros.libro', 'titulo autor');
+      res.json(compras);
     } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
-      });
+      res.status(500).json({ mensaje: 'Error al obtener las compras', error: error.message });
     }
   }
 
-  // Confirmar entrega (para usuarios)
-  async confirmarEntrega(req, res) {
+  async actualizarEstadoCompra(req, res) {
     try {
-      const { compraId } = req.params;
-
-      const compra = await Compra.findByIdAndUpdate(compraId,
-        { estado: 'Entregado', entregaConfirmada: true },
-        { new: true }
-      );
-
+      const { estado } = req.body;
+      const compra = await Compra.findByIdAndUpdate(req.params.compraId, { estado }, { new: true });
       if (!compra) {
-        return res.status(404).json({ status: 'fail', message: 'Compra no encontrada' });
+        return res.status(404).json({ mensaje: 'Compra no encontrada' });
       }
-
-      res.status(200).json({
-        status: 'success',
-        data: { compra }
-      });
+      res.json(compra);
     } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
-      });
+      res.status(500).json({ mensaje: 'Error al actualizar el estado de la compra', error: error.message });
     }
   }
 
   // Obtener compra por ID
-  async obtenerCompra(req, res) {
+  async obtenerTodasLasCompras(req, res) {
     try {
-      const { compraId } = req.params;
-
-      const compra = await Compra.findById(compraId).populate('pedido');
-      if (!compra) {
-        return res.status(404).json({ status: 'fail', message: 'Compra no encontrada' });
-      }
-
-      res.status(200).json({
-        status: 'success',
-        data: { compra }
-      });
+      const compras = await Compra.find().populate('usuario', 'nombre email').populate('libros.libro', 'titulo autor');
+      res.json(compras);
     } catch (error) {
-      res.status(400).json({
-        status: 'fail',
-        message: error.message
-      });
+      res.status(500).json({ mensaje: 'Error al obtener todas las compras', error: error.message });
     }
   }
 }

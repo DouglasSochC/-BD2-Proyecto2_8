@@ -1,34 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartShopping, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { Row, Col, Nav, Image, Navbar, Dropdown, Container, ListGroup } from 'react-bootstrap';
 import { useRouter } from 'next/navigation';
 import { cerrarSesion, obtenerDatosUsuario } from "@/helpers/session";
+import { obtenerProductosCarrito } from "@/helpers/shoppingCart";
+import { MyContext } from "@/helpers/changeShoppingCart";
 
 export default function NavbarComponent() {
 
   const router = useRouter();
   const [usuario, setUsuario] = useState(null);
-  const [notifications, setNotifications] = useState([
-    {
-      "id": 1,
-      "read": false,
-      "image": null,
-      "sender": "Jose Leos",
-      "time": "a few moments ago",
-      "link": "#",
-      "message": `Added you to an event "Project stand-up" tomorrow at 12:30 AM.`
-    },
-    {
-      "id": 2,
-      "read": false,
-      "image": null,
-      "sender": "Neil Sims",
-      "time": "2 hrs ago",
-      "link": "#",
-      "message": `You've been assigned a task for "Awesome new project".`
-    }]);
+  const [notifications, setNotifications] = useState(null);
+  const { actualizarShoppingCart } = useContext(MyContext);
 
   const handleCerrarSesion = () => {
     cerrarSesion();
@@ -36,11 +21,10 @@ export default function NavbarComponent() {
   };
 
   const Notification = (props) => {
-    const { link, sender, image, time, message, read = false } = props;
-    const readClassName = read ? "" : "text-danger";
+    const { image, nombre_libro, nombre_autor, cantidad, precio } = props;
 
     return (
-      <ListGroup.Item action href={link} className="border-bottom border-light">
+      <ListGroup.Item action className="border-bottom border-light">
         <Row className="align-items-center">
           <Col className="col-auto">
             <Image src={image} className="user-avatar lg-avatar rounded-circle" />
@@ -48,13 +32,14 @@ export default function NavbarComponent() {
           <Col className="ps-0 ms--2">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <h4 className="h6 mb-0 text-small">{sender}</h4>
-              </div>
-              <div className="text-end">
-                <small className={readClassName}>{time}</small>
+                <h4 className="h6 mb-0 text-small">{nombre_libro}</h4>
+                <b>{nombre_autor}</b>
               </div>
             </div>
-            <p className="font-small mt-1 mb-0">{message}</p>
+            <p className="font-small mt-1 mb-0">
+              <b>Cantidad:</b> {cantidad}<br />
+              <b>Precio:</b> {precio}
+            </p>
           </Col>
         </Row>
       </ListGroup.Item>
@@ -63,7 +48,12 @@ export default function NavbarComponent() {
 
   useEffect(() => {
     setUsuario(obtenerDatosUsuario());
+    setNotifications(obtenerProductosCarrito());
   }, []);
+
+  useEffect(() => {
+    setNotifications(obtenerProductosCarrito());
+  }, [actualizarShoppingCart]);
 
   return (
     <Navbar variant="dark" expanded className="ps-0 pe-2 pb-0">
@@ -80,14 +70,14 @@ export default function NavbarComponent() {
                     <FontAwesomeIcon icon={faCartShopping} className="bell-shake" />
                   </span>
                 </Dropdown.Toggle>
-                <Dropdown.Menu className="dashboard-dropdown notifications-dropdown dropdown-menu-lg dropdown-menu-center mt-2 py-0">
+                <Dropdown.Menu className="dashboard-dropdown notifications-dropdown dropdown-menu-lg dropdown-menu-center mt-4 py-0">
                   <ListGroup className="list-group-flush">
                     <Nav.Link href="#" className="text-center text-primary fw-bold border-bottom border-light py-3">
                       Carrito
                     </Nav.Link>
-                    {notifications.map(n => <Notification key={`notification-${n.id}`} {...n} />)}
-                    <Dropdown.Item className="text-center text-primary fw-bold py-3">
-                      Ver detalle
+                    {notifications && notifications.slice(0, 2).map(n => <Notification key={`notification-${n.id_libro}`} {...n} />)}
+                    <Dropdown.Item className="text-center text-primary fw-bold py-3" href="/dashboard_usuario/carrito">
+                      Ver detalle {notifications && notifications.length > 2 && `- (${notifications.length - 2} productos más)`}
                     </Dropdown.Item>
                   </ListGroup>
                 </Dropdown.Menu>
@@ -95,7 +85,7 @@ export default function NavbarComponent() {
             )}
 
             <Dropdown as={Nav.Item}>
-              <Dropdown.Toggle as={Nav.Link} className="pt-1 px-0">
+              <Dropdown.Toggle as={Nav.Link} className="pt-1 px-0 me-lg-3">
                 <div className="media d-flex align-items-center">
                   <Image src="/user_icon.png" className="user-avatar md-avatar rounded-circle" />
                   <div className="media-body ms-2 text-dark align-items-center d-none d-lg-block">
