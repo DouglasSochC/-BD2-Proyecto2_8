@@ -38,17 +38,9 @@ const LibroCatalogo = () => {
     router.push("/dashboard_usuario/libro/?id=" + id);
   }
 
-  const handleCrearLocalStorage = () => {
-    crearCarrito();
-  }
-
   const handleAgregarProducto = (producto) => {
     agregarProductoCarrito(producto);
     setActualizarShoppingCart(actualizarShoppingCart + 1);
-  }
-
-  const handleObtenerLocalStorage = () => {
-    console.log(obtenerProductosCarrito());
   }
 
   useEffect(() => {
@@ -70,8 +62,6 @@ const LibroCatalogo = () => {
 
   return (
     <Container>
-      <Button onClick={handleCrearLocalStorage}>Crear Local Storage</Button>
-      <Button onClick={handleObtenerLocalStorage}>Obtener Local Storage</Button>
       <h1 className="text-center my-4">Catalogo de Libros</h1>
       <InputGroup className="mb-3">
         <Form.Control

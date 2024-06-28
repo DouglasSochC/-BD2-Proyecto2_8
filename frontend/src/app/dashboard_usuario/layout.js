@@ -11,8 +11,7 @@ export default function Layout({ children }) {
       <Sidebar routes={[
         { title: "Catalogo Autores", link: "/dashboard_usuario/autor_catalogo", icon: faAddressBook },
         { title: "Catalogo Libro", link: "/dashboard_usuario/libro_catalogo", icon: faBookOpenReader },
-        { title: "Historial", link: "/dashboard_usuario/historial", icon: faClockRotateLeft },
-        { title: "Carrito", link: "/dashboard_usuario/carrito", icon: faShoppingCart },
+        { title: "Historial", link: "/dashboard_usuario/historial", icon: faClockRotateLeft }
       ]} />
       <main className="content">
         <Navbar />
